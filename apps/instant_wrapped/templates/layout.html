@@ -9,15 +9,14 @@
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css">
     [[block page_head]]<!-- individual pages can customize header here -->[[end]]
   </head>
-  <body>
+  <body class="mx-6">
     <!-- Navigation bar -->
-    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-transparent mt-2" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="[[=URL('index')]]">
-          Learn py4web
-          <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
+          <img class="logo" src="images/site_icon.png">
+          <h1 class="title is-4">Instant Wrapped</h1>
         </a>
-
 
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="the-navbar-menu"
            onclick="this.classList.toggle('is-active');document.getElementById(this.dataset.target).classList.toggle('is-active');">
@@ -56,16 +55,19 @@
         </div>
       </div>
     </nav>
+    <hr class="navbar-divider">
 
     <!-- beginning of HTML inserted by extending template -->
     [[include]]
     <!-- end of HTML inserted by extending template -->
-    <footer class="footer">
-      <div class="content has-text-centered">
-        Made with <a href="https://py4web.com">py4web</a>.
-        <a href="https://learn-py4web.github.io">Learn py4web!</a>
-      </div>
-    </footer>
+    <div class="content has-text-centered">
+      <p>
+        Created by <a href="https://www.jackvento.com/">Jack Vento</a>, 
+        <a href="https://github.com/Alex-Rah">Alex Rah</a>, 
+        <a href="https://github.com/calbhong">Calvin Hong</a>, 
+        and <a href="https://github.com/noelnour">Nicole Bishara</a>.
+      </p>
+    </div>
   </body>
   <script src="js/sugar.min.js"></script>
   <script src="js/axios.min.js"></script>
