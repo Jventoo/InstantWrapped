@@ -16,7 +16,6 @@ def get_user_email():
 def get_time():
     return datetime.datetime.utcnow()
 
-# 
 db.define_table(
     'user',
     Field('username', requires=IS_NOT_EMPTY()),
@@ -24,8 +23,8 @@ db.define_table(
     Field('user_email', default=get_user_email),
 )
 
-db.contact.id.readable = db.contact.id.writable = False
-db.contact.user_email.readable = db.contact.user_email.writable = False
+db.user.id.readable = db.user.id.writable = False
+db.user.user_email.readable = db.user.user_email.writable = False
 
 db.define_table(
     'genre',
