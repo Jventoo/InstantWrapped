@@ -6,6 +6,8 @@ import copy
 import os
 import sys
 import logging
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 from py4web import Session, Cache, Translator, Flash, DAL, Field, action
 from py4web.utils.mailer import Mailer
 from py4web.utils.auth import Auth
@@ -201,6 +203,27 @@ if settings.USE_CELERY:
         "apps.%s.tasks" % settings.APP_NAME, broker=settings.CELERY_BROKER
     )
 
+# #######################################################
+# Spotipy Objects
+# #######################################################
+spotify_scope = [
+    'user-read-recently-played', 'user-top-read', 'playlist-modify-public', 
+    'user-modify-playback-state', 'playlist-modify-private', 
+    'user-follow-modify', 'user-library-modify', 'streaming'
+]
+
+spotify_ranges = [
+    'short_term', 'medium_term', 'long_term'
+]
+
+sp = spotipy.Spotify(
+    auth_manager=SpotifyOAuth(
+        client_id=settings.SPOTIFY_CLIENT_ID,
+        client_secret=settings.SPOTIFY_CLIENT_SECRET,
+        redirect_uri=settings.SPOTIFY_REDIRECT_URI,
+        scope=spotify_scope
+    )
+)
 
 # #######################################################
 # Enable authentication

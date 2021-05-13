@@ -88,6 +88,11 @@ T_FOLDER = required_folder(APP_FOLDER, "translations")
 USE_CELERY = False
 CELERY_BROKER = "redis://localhost:6379/0"
 
+# Spotify settings
+SPOTIFY_CLIENT_ID = "85dcea4df4a24e70bebca4ef71220f09"
+SPOTIFY_CLIENT_SECRET = "f7ef5e4c0402484698200e99056470b8"
+SPOTIFY_REDIRECT_URI = "https://www.jackvento.com/"
+
 # try import private settings
 try:
     from .settings_private import *
