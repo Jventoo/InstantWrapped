@@ -39,15 +39,28 @@ url_signer = URLSigner(session)
 @action('index')
 @action.uses(db, auth, 'index.html')
 def index():
-    for sp_range in spotify_ranges:
-        print("range:", sp_range)
-
-        results = sp.current_user_top_artists(time_range=sp_range, limit=50)
-
-        for i, item in enumerate(results['items']):
-            print(i, item['name'])
-        print()
     return dict()
+
+@action('get_statistics')
+@action.uses(db, auth.user)
+def get_statistics():
+    statistics = dict()
+    for sp_range in spotify_ranges:
+        top_artists = sp.current_user_top_artists(time_range=sp_range, limit=20)
+        top_tracks = sp.current_user_top_tracks(time_range=sp_range, limit=50)
+        recent_tracks = sp.current_user_recently_played(limit=50)
+        ## TODO: generate genres list from top artists/tracks
+        ## TODO: generate albums list from top + recent tracks
+        
+        stat = {
+            "artists": top_artists,
+            "tracks": top_tracks,
+            "recent_tracks": recent_tracks,
+            "genres": "TOP GENRES HERE",
+            "albums": "TOP ALBUMS HERE"
+        }
+        statistics[sp_range] = stat
+    return dict(statistics=statistics)
 
 @action('dashboard')
 @action.uses(db, auth, 'dashboard.html')

@@ -59,7 +59,8 @@ db.define_table(
 
 db.define_table(
     'user_top_genre',
-    Field('spotify_genre_id', requires=IS_NOT_EMPTY()),
+    Field('genre_id', 'reference genre'),
+    Field('user_id', 'reference user'),
     Field('user_position', 'integer', requires=IS_NOT_EMPTY()),
     Field('user_timespan', requires=IS_NOT_EMPTY()),
 )
