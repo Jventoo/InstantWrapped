@@ -154,7 +154,7 @@ if settings.OAUTH2GOOGLE_CLIENT_ID:
             callback_url="auth/plugin/oauth2google/callback",
         )
     )
-
+    
 if settings.OAUTH2SPOTIFY_CLIENT_ID:
     from py4web.utils.auth_plugins.oauth2spotify import OAuth2Spotify  # TESTED
 
@@ -165,7 +165,7 @@ if settings.OAUTH2SPOTIFY_CLIENT_ID:
             callback_url="auth/plugin/oauth2spotify/callback",
         )
     )
-
+    
 if settings.OAUTH2FACEBOOK_CLIENT_ID:
     from py4web.utils.auth_plugins.oauth2facebook import OAuth2Facebook  # UNTESTED
 
@@ -228,7 +228,14 @@ spotify_ranges = [
     'short_term', 'medium_term', 'long_term'
 ]
 
-#sp = spotipy.Spotify(auth=token)
+sp = spotipy.Spotify(
+    auth_manager=SpotifyOAuth(
+        client_id=settings.SPOTIFY_CLIENT_ID,
+        client_secret=settings.SPOTIFY_CLIENT_SECRET,
+        redirect_uri=settings.SPOTIFY_REDIRECT_URI,
+        scope=spotify_scope
+    )
+)
 
 # #######################################################
 # Enable authentication

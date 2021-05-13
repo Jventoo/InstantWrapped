@@ -29,9 +29,9 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
-from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges#, sp, token
+from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges, sp
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email, get_user
+from .models import get_user_email
 from . import settings
 
 url_signer = URLSigner(session)
@@ -39,16 +39,14 @@ url_signer = URLSigner(session)
 @action('index')
 @action.uses(db, auth, 'index.html')
 def index():
-    # if token is not None:
-    #     for sp_range in spotify_ranges:
-    #         print("range:", sp_range)
+    for sp_range in spotify_ranges:
+        print("range:", sp_range)
 
-    #         results = sp.current_user_top_artists(time_range=sp_range, limit=50)
+        results = sp.current_user_top_artists(time_range=sp_range, limit=50)
 
-    #         for i, item in enumerate(results['items']):
-    #             print(i, item['name'])
-    #         print()
-    #     print(get_user())
+        for i, item in enumerate(results['items']):
+            print(i, item['name'])
+        print()
     return dict()
 
 @action('dashboard')
@@ -59,6 +57,12 @@ def index():
 
 @action('account_mng')
 @action.uses(db, auth, 'account_mng.html')
+def index():
+    print("User:", get_user_email())
+    return dict()
+
+@action('login')
+@action.uses(db, auth, 'login.html')
 def index():
     print("User:", get_user_email())
     return dict()

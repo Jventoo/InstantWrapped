@@ -13,21 +13,18 @@ from pydal.validators import *
 def get_user_email():
     return auth.current_user.get('email') if auth.current_user else None
 
-def get_user():
-    return auth.current_user.get('id') if auth.current_user else None
-
 def get_time():
     return datetime.datetime.utcnow()
 
 db.define_table(
-    'iw_user',
+    'user',
     Field('username', requires=IS_NOT_EMPTY()),
     Field('spotify_id', requires=[IS_NOT_EMPTY()]),
     Field('user_email', default=get_user_email),
 )
 
-db.iw_user.id.readable = db.iw_user.id.writable = False
-db.iw_user.user_email.readable = db.iw_user.user_email.writable = False
+db.user.id.readable = db.user.id.writable = False
+db.user.user_email.readable = db.user.user_email.writable = False
 
 db.define_table(
     'genre',
@@ -62,8 +59,7 @@ db.define_table(
 
 db.define_table(
     'user_top_genre',
-    Field('genre_id', 'reference genre'),
-    Field('user_id', 'reference iw_user'),
+    Field('spotify_genre_id', requires=IS_NOT_EMPTY()),
     Field('user_position', 'integer', requires=IS_NOT_EMPTY()),
     Field('user_timespan', requires=IS_NOT_EMPTY()),
 )
@@ -71,7 +67,7 @@ db.define_table(
 db.define_table(
     'user_top_artist',
     Field('artist_id', 'reference artist'),
-    Field('user_id', 'reference iw_user'),
+    Field('user_id', 'reference user'),
     Field('user_position', 'integer', requires=IS_NOT_EMPTY()),
     Field('user_timespan', requires=IS_NOT_EMPTY()),
 )
@@ -79,7 +75,7 @@ db.define_table(
 db.define_table(
     'user_top_album',
     Field('album_id', 'reference album'),
-    Field('user_id', 'reference iw_user'),
+    Field('user_id', 'reference user'),
     Field('user_position', 'integer', requires=IS_NOT_EMPTY()),
     Field('user_timespan', requires=IS_NOT_EMPTY()),
 )
@@ -87,14 +83,14 @@ db.define_table(
 db.define_table(
     'user_top_song',
     Field('song_id', 'reference song'),
-    Field('user_id', 'reference iw_user'),
+    Field('user_id', 'reference user'),
     Field('user_position', 'integer', requires=IS_NOT_EMPTY()),
     Field('user_timespan', requires=IS_NOT_EMPTY()),
 )
 
 db.define_table(
     'user_playlist',
-    Field('user_id', 'reference iw_user'),
+    Field('user_id', 'reference user'),
     Field('name', requires=IS_NOT_EMPTY()),
     Field('spotify_playlist_id', requires=IS_NOT_EMPTY()),
 )
@@ -106,7 +102,7 @@ db.define_table(
 # another way with how references work.
 db.define_table(
     'review',
-    Field('user_id', 'reference iw_user'),
+    Field('user_id', 'reference user'),
     Field('spotify_id', requires=IS_NOT_EMPTY()),
     Field('description', 'text', requires=IS_NOT_EMPTY()),
 )
