@@ -23,14 +23,13 @@ db.define_table(
     Field('user_email', default=get_user_email),
 )
 
+db.auth_user.id.readable = db.auth_user.id.writable = False
 db.user.id.readable = db.user.id.writable = False
 db.user.user_email.readable = db.user.user_email.writable = False
 
 db.define_table(
     'genre',
     Field('name', requires=IS_NOT_EMPTY()),
-    Field('spotify_genre_id', requires=IS_NOT_EMPTY()),
-    Field('leaderboard_pos', 'integer'),
 )
 
 db.define_table(
@@ -58,8 +57,9 @@ db.define_table(
 )
 
 db.define_table(
-    'user_top_genre',
-    Field('spotify_genre_id', requires=IS_NOT_EMPTY()),
+    'user_top_genree',
+    Field('genre_id', 'reference genre'),
+    Field('user_id', 'reference user'),
     Field('user_position', 'integer', requires=IS_NOT_EMPTY()),
     Field('user_timespan', requires=IS_NOT_EMPTY()),
 )
