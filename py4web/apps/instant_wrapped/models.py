@@ -58,7 +58,7 @@ db.define_table(
 )
 
 db.define_table(
-    'user_top_genre',
+    'user_top_genree',
     Field('genre_id', 'reference genre'),
     Field('user_id', 'reference user'),
     Field('user_position', 'integer', requires=IS_NOT_EMPTY()),
