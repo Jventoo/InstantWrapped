@@ -112,14 +112,12 @@ def get_statistics(
             else:
                 album_frequency[album_id] = 1
 
-    # Take top items from frequency lists and insert into top lists
-    genre_frequency = sorted(genre_frequency.values(), reverse=True)
-    for genre in list(genre_frequency)[0:genre_lim]:
-        top_genres.append(genre)
+    # Take top items from frequency lists and insert into top lists by descending popularity
+    top_genres = sorted(genre_frequency, key=genre_frequency.get, reverse=True)
+    top_genres = top_genres[0:genre_lim]
 
-    album_frequency = sorted(album_frequency.values(), reverse=True)
-    for album in list(album_frequency)[0:album_lim]:
-        top_albums.append(album)
+    top_albums = sorted(album_frequency, key=album_frequency.get, reverse=True)
+    top_albums = top_albums[0:album_lim]
 
     # Fill stats dictionary with results
     statistics = {
