@@ -56,6 +56,17 @@ def get_statistics(
     range, artist_lim=20, track_lim=50, recent_lim=20, 
     genre_lim=20, album_lim=20
 ):
+    """ Generate listening statistics for the given time period and current user.
+        See Spotify Web API endpoints for further type information.
+
+        Returns a dictionary containing lists of top_artists (artists items),
+        top tracks (tracks items), recent tracks (tracks items),
+        top genres (name strings), and top albums (album ids).
+
+        Parameters:
+            - range: time period to generate statistics for (see common.py.spotify_ranges for available ranges)
+            - limits: amount of each statistic to generate
+    """
     statistics = dict()
     assert range in spotify_ranges
 
@@ -122,18 +133,12 @@ def get_statistics(
 
 @action('dashboard')
 @action.uses(db, auth, 'dashboard.html')
-def index():
+def dashboard():
     print("User:", get_user_email())
     return dict()
 
 @action('account_mng')
 @action.uses(db, auth, 'account_mng.html')
-def index():
-    print("User:", get_user_email())
-    return dict()
-
-@action('login')
-@action.uses(db, auth, 'login.html')
-def index():
+def account_mng():
     print("User:", get_user_email())
     return dict()

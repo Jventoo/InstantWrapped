@@ -23,14 +23,13 @@ db.define_table(
     Field('user_email', default=get_user_email),
 )
 
+db.auth_user.id.readable = db.auth_user.id.writable = False
 db.user.id.readable = db.user.id.writable = False
 db.user.user_email.readable = db.user.user_email.writable = False
 
 db.define_table(
     'genre',
     Field('name', requires=IS_NOT_EMPTY()),
-    Field('spotify_genre_id', requires=IS_NOT_EMPTY()),
-    Field('leaderboard_pos', 'integer'),
 )
 
 db.define_table(
