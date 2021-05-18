@@ -34,6 +34,7 @@ from .common import db, session, T, cache, auth, logger, authenticated, unauthen
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email
 from . import settings
+import json
 
 url_signer = URLSigner(session)
 
@@ -53,8 +54,8 @@ def index():
 @action('get_statistics/<range>/<artist_lim:int>/<track_lim:int>/<recent_lim:int>/<genre_lim:int>/<album_lim:int>')
 @action.uses(db, auth.user)
 def get_statistics(
-    range, artist_lim=20, track_lim=50, recent_lim=20, 
-    genre_lim=20, album_lim=20
+    range, artist_lim=50, track_lim=50, recent_lim=1,
+    genre_lim=1, album_lim=1
 ):
     """ Generate listening statistics for the given time period and current user.
         See Spotify Web API endpoints for further type information.
@@ -131,11 +132,41 @@ def get_statistics(
     }
     return dict(statistics=statistics)
 
+@action('load_stats')
+@action.uses(db, auth.user)
+def load_stats():
+    time_range = int(request.params.get('time_range'))
+    data = get_statistics(spotify_ranges[time_range])
+    json_data = json.loads(data)
+    track_data = json_data["statistics"]["tracks"]["items"]
+    artist_data = json_data["statistics"]["artists"]["items"]
+    rows = {
+        "top_tracks": [],
+        "top_artists": [],
+        "track_rankings":[],
+        "artist_rankings": [],
+    }
+    for a in range(len(track_data)):
+        # print(track_data[a]["name"])
+        rows["top_tracks"].append(track_data[a]["name"])
+        rows["track_rankings"].append(a)
+    for b in range(len(artist_data)):
+        # print(artist_data[b]["name"])
+        rows["top_artists"].append(artist_data[b]["name"])
+        rows["artist_rankings"].append(b)
+    # for row in rows['track_rankings']:
+    #     print(row)
+    #     print(rows["top_tracks"][row])
+    # print(rows)
+    return dict(rows = rows)
+
 @action('dashboard')
-@action.uses(db, auth, 'dashboard.html')
+@action.uses(db, auth.user, 'dashboard.html')
 def dashboard():
     print("User:", get_user_email())
-    return dict()
+    return dict(
+        load_stats_url=URL('load_stats', signer=url_signer),
+    )
 
 @action('account_mng')
 @action.uses(db, auth, 'account_mng.html')
