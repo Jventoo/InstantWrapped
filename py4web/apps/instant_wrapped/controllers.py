@@ -54,8 +54,8 @@ def index():
 @action('get_statistics/<range>/<artist_lim:int>/<track_lim:int>/<recent_lim:int>/<genre_lim:int>/<album_lim:int>')
 @action.uses(db, auth.user)
 def get_statistics(
-    range, artist_lim=50, track_lim=50, recent_lim=1,
-    genre_lim=1, album_lim=1
+    range, artist_lim=20, track_lim=50, recent_lim=20,
+    genre_lim=20, album_lim=20
 ):
     """ Generate listening statistics for the given time period and current user.
         See Spotify Web API endpoints for further type information.
