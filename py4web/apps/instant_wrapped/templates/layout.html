@@ -9,13 +9,12 @@
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css">
     [[block page_head]]<!-- individual pages can customize header here -->[[end]]
   </head>
-  <body class="mx-6">
+  <body class="mx-2">
     <!-- Navigation bar -->
-    <nav class="navbar is-transparent mt-2" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-black mt-2" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="[[=URL('index')]]">
-          <img class="logo" src="images/site_icon.png">
-          <h1 class="title">Instant Wrapped</h1>
+          <img class="logo" src="images/Spotify_Icon_RGB_White.png">
         </a>
 
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="the-navbar-menu"
@@ -47,8 +46,8 @@
                   </div>
                 </div>
               [[else:]]
-                <a class="button is-link" href="[[=URL('auth/register')]]">Sign up</a>
-                <a class="button is-success" href="[[=URL('auth/login')]]">Log in</a>
+                <a class="button" href="[[=URL('auth/register')]]">Sign up</a>
+                <a class="button" href="[[=URL('auth/login')]]">Log in</a>
               [[pass]]
             </div>
           </div>

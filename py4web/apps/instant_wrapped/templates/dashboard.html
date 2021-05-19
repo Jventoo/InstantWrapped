@@ -7,57 +7,6 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-    <section class="hero is-black welcome is-small">
-        <div class="hero-body">
-            <nav class="navbar is-transparent mt-2" role="navigation" aria-label="main navigation">
-                <div class="navbar-brand">
-                    <a class="navbar-item" href="[[=URL('index')]]">
-                        <img class="logo"
-                             src="https://i.pinimg.com/originals/f0/5c/bc/f05cbc8c0f8b075d2b4f1f68fee49649.jpg"
-                             class="center">
-                    </a>
-
-                    <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
-                       data-target="the-navbar-menu"
-                       onclick="this.classList.toggle('is-active');document.getElementById(this.dataset.target).classList.toggle('is-active');">
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                    </a>
-                </div>
-
-                <div id="the-navbar-menu" class="navbar-menu">
-                    <div class="navbar-start">
-                    </div>
-
-                    <div class="navbar-end">
-                        <div class="navbar-item">
-                            <div class="buttons">
-                                [[if globals().get('user'):]]
-                                <div class="navbar-item has-dropdown is-hoverable">
-                                    <a class="navbar-link is-primary">
-                                        Account
-                                    </a>
-                                    <div class="navbar-dropdown">
-                                        <a class="navbar-item" style="color:#FFFFFF" href="[[=URL('auth/logout')]]">Logout</a>
-                                        <a class="navbar-item" style="color:#FFFFFF" href="[[=URL('auth/profile')]]">Profile</a>
-                                        <a class="navbar-item" style="color:#FFFFFF"
-                                           href="[[=URL('auth/change_password')]]">Change Password</a></li>
-
-                                    </div>
-                                </div>
-                                [[else:]]
-                                <a class="button is-black" href="[[=URL('auth/login')]]">Log in</a>
-                                [[pass]]
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-            <hr class="navbar-divider">
-        </div>
-    </section>
-
 
     <div class="columns is-mobile">
         <div class="column is-four-fifths">
