@@ -26,17 +26,18 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 """
 
 from requests.api import get
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges, sp
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email
-from . import settings
+from . import settings, models
 import json
 
 url_signer = URLSigner(session)
+
+# #######################################################
+# Helpers
+# #######################################################
 
 def get_artist(name):
     results = sp.search(q='artist:' + name, type='artist')
@@ -45,6 +46,10 @@ def get_artist(name):
         return items[0]
     else:
         return None
+
+# #######################################################
+# Actions
+# #######################################################
 
 @action('index')
 @action.uses(db, auth, 'index.html')
@@ -98,13 +103,6 @@ def get_statistics(
                 genre_frequency[genre] += 1
             else:
                 genre_frequency[genre] = 1
-        # for artist in track_item['artists']:
-        #     genres = sp.artist(artist['id'])['genres']
-        #     for genre in genres:
-        #         if genre in genre_frequency:
-        #             genre_frequency[genre] += 1
-        #         else:
-        #             genre_frequency[genre] = 1
         album = track_item['album']
         if (album['album_type'] == "ALBUM"):  # Not adding singles
             album_id = album['id']
@@ -129,6 +127,37 @@ def get_statistics(
         "albums": top_albums
     }
     return dict(statistics=statistics)
+
+@action('create_playlist')
+@action.uses(db, auth.user)
+def create_playlist():
+    tids = []
+    tracks = sp.current_user_top_tracks(time_range="short_term", limit=20)#request.params.get('top_tracks')
+    name = request.params.get('name')
+    assert tracks is not None
+    for t in tracks['items']:
+        tids.append(t['id'])
+
+    if name is None or not name:
+        name = "Instant Wrapped Top Tracks"
+    user_id = sp.me()['id']
+    pid = sp.user_playlist_create(user_id, name)['id']
+    sp.playlist_add_items(pid, tids)
+    return dict(pid=pid)
+
+@action('post_playlist/<pid>')
+@action.uses(db, auth.user)
+def post_playlist(pid):
+    user_id = models.get_user()
+    assert pid is not None and user_id is not None
+    models.store_playlist(pid, user_id)
+    return dict()
+
+@action('save_playlist/<pid>')
+@action.uses(db, auth.user)
+def save_playlist(pid):
+    sp.current_user_follow_playlist(pid)
+    return dict()
 
 @action('load_stats')
 @action.uses(db, auth.user)
@@ -161,7 +190,7 @@ def load_stats():
 @action('dashboard')
 @action.uses(db, auth.user, 'dashboard.html')
 def dashboard():
-    print("User:", get_user_email())
+    print("User:", models.get_user_email())
     return dict(
         load_stats_url=URL('load_stats', signer=url_signer),
     )
@@ -169,5 +198,5 @@ def dashboard():
 @action('account_mng')
 @action.uses(db, auth, 'account_mng.html')
 def account_mng():
-    print("User:", get_user_email())
+    print("User:", models.get_user_email())
     return dict()
