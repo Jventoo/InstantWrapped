@@ -10,7 +10,12 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         time_range: -1,
+        save_mode: false,
+        playlist_to_post: false,
+        pid: 0,
+        add_playlist_name: "",
         desired_data: "",
+        top_tracks: [],
         rows: [],
         counter: 0,
     };
@@ -28,13 +33,46 @@ let init = (app) => {
     // };
 
     app.load_stats = function (new_range) {
+        app.vue.save_mode = false;
+        app.vue.playlist_saved = false;
         app.vue.counter = 1;
         app.vue.time_range = new_range;
         let time_range = app.vue.time_range;
         axios.get(load_stats_url, {params: {time_range: new_range}}).then(function (response) {
             app.vue.rows = response.data.rows;
+            app.vue.top_tracks = response.data.top_tracks;
         });
-    }
+    };
+
+    app.reset_form = function () {
+        app.vue.add_playlist_name = "";
+    };
+
+    app.set_save_status = function (new_status){
+        app.vue.save_mode = new_status;
+    };
+
+    app.create_playlist = function (playlist_tracks) {
+        axios.post(create_playlist_url,
+            {
+                top_tracks: playlist_tracks,
+                name: app.vue.add_playlist_name,
+            }).then(function (response) {
+            app.vue.pid = response.data.pid;
+            app.reset_form();
+            app.set_save_status(false);
+            app.vue.playlist_to_post = true;
+         });
+    };
+    app.post_playlist = function (playlist_id){
+
+        axios.post(post_playlist_url,
+            {
+                pid: playlist_id,
+            });
+            app.set_save_status(false);
+            app.vue.playlist_to_post = false;
+    };
 
     // app.increment = function () {
     //     app.vue.counter += 1;
@@ -52,6 +90,10 @@ let init = (app) => {
 
     app.methods = {
         load_stats: app.load_stats,
+        reset_form: app.reset_form,
+        set_save_status: app.set_save_status,
+        create_playlist: app.create_playlist,
+        post_playlist: app.post_playlist,
     };
 
 

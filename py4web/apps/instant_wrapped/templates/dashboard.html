@@ -5,13 +5,11 @@
         display: none;
     }
 </style>
-
 <div class="section" id="vue-target" v-cloak>
-
+    <a class="button is-rounded is-white is-medium" href="[[=URL('leaderboard')]]" style="position:absolute;top:450px;right:250px"><b>Leaderboard!</b></a>
     <div class="columns is-mobile">
         <div class="column is-four-fifths">
             <div class="columns is-mobile">
-
                 <div class="column is-one-third">
                     <button type="submit" @click="load_stats(0)"
                             class="button is-primary">
@@ -36,7 +34,7 @@
             </div>
         </div>
         <div class="column is-one-fifth">
-
+            <!--            Recent User Activity-->
         </div>
     </div>
 
@@ -82,8 +80,42 @@
                 <td>{{i+1}}</td>
                 <td>{{rows["top_tracks"][i]}}</td>
             </tr>
-
         </table>
+        <div v-if="save_mode === false">
+            <button type="submit" @click="set_save_status(true)"
+                    class="button is-primary">
+                <i> Save Playlist to Library </i>
+            </button>
+        </div>
+        <div v-else>
+            <div v-if="save_mode" class="container block">
+                <div class="title">Please give your playlist a name</div>
+                <div class="form">
+                    <!-- This looks like a form, but is not.  We just need the inputs. -->
+                    <div class="field">
+                        <label class="label">Playlist Name:</label>
+                        <div class="control">
+                            <input type="text" v-model="add_playlist_name" class="input">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input type="submit" @click="create_playlist(top_tracks)" value="Save Playlist"
+                                   class="button is-primary">
+                            <input type="submit" @click="set_save_status(false)" value="Cancel"
+                                   class="button is-warning">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="playlist_to_post">
+            <button type="submit" @click="post_playlist(pid)"
+                    class="button is-primary">
+                <i> Post Playlist to Leaderboard! </i>
+            </button>
+            <i> (As of right now, this is your only chance to post this playlist to the leaderboards!) </i>
+        </div>
     </div>
 
     <div v-if="desired_data === 'Top Artists'" class="section">
@@ -97,7 +129,6 @@
                 <td>{{i+1}}</td>
                 <td>{{rows["top_artists"][i]}}</td>
             </tr>
-
         </table>
     </div>
 
@@ -107,6 +138,8 @@
 <!-- Loads the index-specific js for Vue -->
 <script>
     let load_stats_url = "[[=XML(load_stats_url)]]";
+    let create_playlist_url = "[[=XML(create_playlist_url)]]";
+    let post_playlist_url = "[[=XML(post_playlist_url)]]";
 </script>
 <script src="js/dashboard.js"></script>
 [[end]]
