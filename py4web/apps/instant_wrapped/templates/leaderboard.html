@@ -1,0 +1,55 @@
+[[extend 'layout.html']]
+
+<style xmlns:v-bind="http://www.w3.org/1999/xhtml">
+    [v-cloak] {
+        display: none;
+    }
+</style>
+
+<div class="section" id="vue-target" v-cloak>
+  <table class="table is-striped is-fullwidth">
+            <tr>
+                <th></th>
+                <th>Score</th>
+                <th>Playlist Name</th>
+                <th>Author</th>
+                <th></th>
+            </tr>
+            <tr v-for="row in rows">
+                <td>
+                    <div v-if="row.upvote_status === 0">
+                        <button @click="upvote(row._idx,1)" class="button">
+                            <i class="fa fa-thumbs-o-up fa-fw"></i>
+                        </button>
+                    </div>
+                    <div v-else>
+                        <button @click="upvote(row._idx,0)" class="button">
+                            <i class="fa fa-thumbs-up fa-fw"></i>
+                        </button>
+                    </div>
+                </td>
+                <td>{{row.current_score}} </td>
+                <td><a :href="'/instant_wrapped/' + 'view_playlist/' + row.id" class="button is-rounded is-ghost">{{row.playlist_name}}</a></td>
+                <td>{{row.playlist_author}}</td>
+                <td>
+                    <button type="submit" @click="save_playlist(row.spotify_playlist_id)"
+                        class="button is-primary">
+                        <i> Save Playlist to Library </i>
+                    </button>
+                </td>
+            </tr>
+
+            </button>
+  </table>
+</div>
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+    let load_leaderboard_url = "[[=XML(load_leaderboard_url)]]";
+    let upvote_url = "[[=XML(upvote_url)]]";
+    let get_rating_url = "[[=XML(get_rating_url)]]";
+    let save_playlist_url = "[[=XML(save_playlist_url)]]";
+</script>
+<script src="js/leaderboard.js"></script>
+[[end]]

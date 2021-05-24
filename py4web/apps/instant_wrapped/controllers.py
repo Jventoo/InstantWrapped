@@ -29,6 +29,7 @@ from requests.api import get
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges, sp
+from .models import get_user_email, get_user
 from py4web.utils.url_signer import URLSigner
 from . import settings, models
 import json
@@ -59,7 +60,7 @@ def index():
 @action('get_statistics/<range>/<artist_lim:int>/<track_lim:int>/<recent_lim:int>/<genre_lim:int>/<album_lim:int>')
 @action.uses(db, auth.user)
 def get_statistics(
-    range, artist_lim=20, track_lim=50, recent_lim=20,
+    range, artist_lim=20, track_lim=20, recent_lim=20,
     genre_lim=20, album_lim=20
 ):
     """ Generate listening statistics for the given time period and current user.
@@ -128,34 +129,37 @@ def get_statistics(
     }
     return dict(statistics=statistics)
 
-@action('create_playlist')
+@action('create_playlist', method = "POST")
 @action.uses(db, auth.user)
 def create_playlist():
     tids = []
-    tracks = sp.current_user_top_tracks(time_range="short_term", limit=20)#request.params.get('top_tracks')
-    name = request.params.get('name')
+    tracks = request.json.get('top_tracks')
+    name = request.json.get('name')
     assert tracks is not None
-    for t in tracks['items']:
+    for t in tracks:
         tids.append(t['id'])
-
     if name is None or not name:
         name = "Instant Wrapped Top Tracks"
     user_id = sp.me()['id']
     pid = sp.user_playlist_create(user_id, name)['id']
     sp.playlist_add_items(pid, tids)
+    user_id = models.get_user()
+    models.store_playlist(pid, user_id)
     return dict(pid=pid)
 
-@action('post_playlist/<pid>')
+@action('post_playlist', method="POST")
 @action.uses(db, auth.user)
-def post_playlist(pid):
-    user_id = models.get_user()
-    assert pid is not None and user_id is not None
-    models.store_playlist(pid, user_id)
-    return dict()
+def post_playlist():
+    pid = request.json.get('pid')
+    db((db.user_playlist.user_id == get_user()) & (db.user_playlist.spotify_playlist_id == pid)).update(
+        leaderboard_display=True,
+    )
+    return "ok"
 
-@action('save_playlist/<pid>')
+@action('save_playlist', method='POST')
 @action.uses(db, auth.user)
-def save_playlist(pid):
+def save_playlist():
+    pid = request.json.get('pid')
     sp.current_user_follow_playlist(pid)
     return dict()
 
@@ -174,18 +178,12 @@ def load_stats():
         "artist_rankings": [],
     }
     for a in range(len(track_data)):
-        # print(track_data[a]["name"])
         rows["top_tracks"].append(track_data[a]["name"])
         rows["track_rankings"].append(a)
     for b in range(len(artist_data)):
-        # print(artist_data[b]["name"])
         rows["top_artists"].append(artist_data[b]["name"])
         rows["artist_rankings"].append(b)
-    # for row in rows['track_rankings']:
-    #     print(row)
-    #     print(rows["top_tracks"][row])
-    # print(rows)
-    return dict(rows = rows)
+    return dict(rows = rows, top_tracks = track_data)
 
 @action('dashboard')
 @action.uses(db, auth.user, 'dashboard.html')
@@ -193,6 +191,94 @@ def dashboard():
     print("User:", models.get_user_email())
     return dict(
         load_stats_url=URL('load_stats', signer=url_signer),
+        create_playlist_url=URL('create_playlist', signer=url_signer),
+        post_playlist_url=URL('post_playlist', signer=url_signer),
+    )
+
+@action('load_leaderboard')
+@action.uses(db, auth.user)
+def load_leaderboard():
+    rows = db(db.user_playlist.leaderboard_display == True).select().as_list()
+    for row in rows:
+        r = db(db.auth_user.id == row["user_id"]).select().first()
+        name = r.first_name + " " + r.last_name if r is not None else "Unknown"
+        row["playlist_author"] = name
+        playlist = sp.playlist(row["spotify_playlist_id"])
+        pName = playlist["name"]
+        row["playlist_name"] = pName
+    rows2 = sorted(rows, key=lambda i: i['rate_score'],reverse=True)
+    print(rows)
+    return dict(rows = rows2)
+
+
+@action('upvote', method='POST')
+@action.uses(url_signer.verify(), db)
+def upvote():
+    playlist_id = request.json.get('playlist_id')
+    upvote_status = request.json.get('upvote_status')
+    new_score = request.json.get('new_score')
+    assert playlist_id is not None and upvote_status is not None
+    db.playlist_upvote.update_or_insert(
+        ((db.playlist_upvote.playlist_id == playlist_id) & (db.playlist_upvote.rater == get_user())),
+        playlist_id=playlist_id,
+        rater=get_user(),
+        upvote=upvote_status,
+    )
+
+    db(db.user_playlist.id == playlist_id).update(
+        rate_score = new_score,
+    )
+    return "ok"
+
+@action('get_rating')
+@action.uses(url_signer.verify(), db)
+def get_rating():
+    playlist_id = request.params.get('playlist_id')
+    row = db((db.playlist_upvote.playlist_id == playlist_id) &
+             (db.playlist_upvote.rater == get_user())).select().first()
+    upvote_status = row.upvote if row is not None else 0
+    temp = db(db.user_playlist.id == playlist_id).select().first()
+    current_score = temp.rate_score
+    return dict(upvote_status=upvote_status, current_score = current_score)
+
+
+@action('leaderboard')
+@action.uses(db, auth.user, 'leaderboard.html')
+def leaderboard():
+    print("User:", models.get_user_email())
+    return dict(
+        load_leaderboard_url=URL('load_leaderboard', signer=url_signer),
+        upvote_url=URL('upvote', signer=url_signer),
+        get_rating_url=URL('get_rating', signer=url_signer),
+        save_playlist_url=URL('save_playlist', signer=url_signer),
+    )
+
+@action('load_playlist/<playlist_id:int>')
+@action.uses(db, auth.user)
+def load_playlist(playlist_id):
+    temp = db(db.user_playlist.id == playlist_id).select().first()
+    temp2 = sp.playlist_items(temp["spotify_playlist_id"])
+    rows = {
+        "tracks": [],
+        "authors": [],
+    }
+    track_data = temp2["items"]
+    for i in range(len(track_data)):
+        rows["tracks"].append(track_data[i]["track"]["name"])
+        artist_data = track_data[i]["track"]["artists"]
+        name = ""
+        for j in range(len(artist_data)):
+            name += artist_data[j]["name"] + ", "
+        name = name[:-2:]
+        rows["authors"].append(name)
+    return dict(rows = rows)
+
+@action('view_playlist/<playlist_id:int>')
+@action.uses(db, auth.user, 'view_playlist.html')
+def view_playlist(playlist_id):
+    print("User:", models.get_user_email())
+    return dict(
+        load_playlist_url=URL('load_playlist', playlist_id, signer=url_signer),
     )
 
 @action('account_mng')

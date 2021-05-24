@@ -113,6 +113,15 @@ db.define_table(
     'user_playlist',
     Field('user_id', 'reference auth_user'),
     Field('spotify_playlist_id', requires=IS_NOT_EMPTY()),
+    Field('rate_score', 'integer', default=0),
+    Field('leaderboard_display', default=False),
+)
+
+db.define_table(
+    'playlist_upvote',
+    Field('playlist_id', 'reference user_playlist', ondelete ="CASCADE"), # Playlist that is starred
+    Field('rater', 'reference auth_user', default=get_user), # User doing the rating.
+    Field('upvote', 'integer', default=0), # +1 = upvote
 )
 
 # Not sure how best to have review DB entry work for any type
