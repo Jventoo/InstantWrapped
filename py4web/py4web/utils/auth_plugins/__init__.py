@@ -38,7 +38,8 @@ class SSO(object):
     ### methods that probably do not need to be overwritten
 
     def _handle_callback(self, auth, get_vars):
-        data = self.callback(get_vars)
+        data, token = self.callback(get_vars)
+        print(data)
         if not data:
             abort(401)
         error = data.get("error")
@@ -56,8 +57,11 @@ class SSO(object):
                 value, parts = data, value.split(".")
                 for part in parts:
                     value = value[int(part) if part.isdigit() else part]
+                    if key == 'email' and not value:
+                        continue
                     user[key] = value
             user["sso_id"] = "%s:%s" % (self.name, user["sso_id"])
+            user["access_token"] = token
             if not "username" in user:
                 user["username"] = user["sso_id"]
             # store or retrieve the user
@@ -68,7 +72,7 @@ class SSO(object):
                 data["id"] = data.get("username") or data.get("email")
         user_id = data.get("id")
         auth.store_user_in_session(user_id)
-        redirect(URL("index"))
+        redirect(URL("dashboard"))
 
     @staticmethod
     def _build_url(base, data):
@@ -157,6 +161,8 @@ class OAuth2(SSO):
         )
         res = requests.post(self.token_url, data=data)
         output = res.json()
+        print("Output:")
+        print(output)
         token = output.get("id_token")
         if token is not None:
             # Lets not get the  user attributes via the userinfo endpoint
@@ -169,7 +175,7 @@ class OAuth2(SSO):
             headers = {"Authorization": "Bearer %s" % token}
             res = requests.get(self.userinfo_url, headers=headers)
             data = res.json()
-        return data
+        return data, token
 
     def revoke(self, token):
         requests.post(self.revoke_url, data=dict(token=token))

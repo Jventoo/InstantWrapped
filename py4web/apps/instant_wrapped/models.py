@@ -46,8 +46,6 @@ def store_playlist(pid, uid):
 def store_review():
     return
 
-db.auth_user.id.readable = db.auth_user.id.writable = False
-
 db.define_table(
     'genre',
     Field('name', requires=IS_NOT_EMPTY()),

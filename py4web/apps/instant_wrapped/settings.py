@@ -60,8 +60,8 @@ LOGGERS = [
 OAUTH2GOOGLE_CLIENT_ID = None
 OAUTH2GOOGLE_CLIENT_SECRET = None
 
-OAUTH2SPOTIFY_CLIENT_ID = None#"85dcea4df4a24e70bebca4ef71220f09"
-OAUTH2SPOTIFY_CLIENT_SECRET = None#"f7ef5e4c0402484698200e99056470b8"
+OAUTH2SPOTIFY_CLIENT_ID = "85dcea4df4a24e70bebca4ef71220f09"
+OAUTH2SPOTIFY_CLIENT_SECRET = "f7ef5e4c0402484698200e99056470b8"
 
 # single sign on Okta (will be used if provided. Please also add your tenant
 # name to py4web/utils/auth_plugins/oauth2okta.py. You can replace the XXX

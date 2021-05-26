@@ -13,6 +13,5 @@ class OAuth2Spotify(OAuth2):
     maps = {
         "email": "email",
         "sso_id": "id",
-        "first_name": "display_name",
-        "last_name": "display_name",
+        "username": "display_name",
     }

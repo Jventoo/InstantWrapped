@@ -28,19 +28,23 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 from requests.api import get
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
-from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges, sp
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges#, sp
 from .models import get_user_email, get_user
 from py4web.utils.url_signer import URLSigner
 from . import settings, models
 import json
 
 url_signer = URLSigner(session)
+# sp = spotipy.Spotify(auth.current_user.get('access_token'))
 
 # #######################################################
 # Helpers
 # #######################################################
 
 def get_artist(name):
+    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
     results = sp.search(q='artist:' + name, type='artist')
     items = results['artists']['items']
     if len(items) > 0:
@@ -76,6 +80,7 @@ def get_statistics(
     """
     statistics = dict()
     assert range in spotify_ranges
+    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
 
     top_artists = sp.current_user_top_artists(time_range=range, limit=artist_lim)
     top_tracks = sp.current_user_top_tracks(time_range=range, limit=track_lim)
@@ -140,6 +145,8 @@ def create_playlist():
         tids.append(t['id'])
     if name is None or not name:
         name = "Instant Wrapped Top Tracks"
+    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
+
     user_id = sp.me()['id']
     pid = sp.user_playlist_create(user_id, name)['id']
     sp.playlist_add_items(pid, tids)
@@ -159,6 +166,7 @@ def post_playlist():
 @action('save_playlist', method='POST')
 @action.uses(db, auth.user)
 def save_playlist():
+    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
     pid = request.json.get('pid')
     sp.current_user_follow_playlist(pid)
     return dict()
@@ -188,7 +196,6 @@ def load_stats():
 @action('dashboard')
 @action.uses(db, auth.user, 'dashboard.html')
 def dashboard():
-    print("User:", models.get_user_email())
     return dict(
         load_stats_url=URL('load_stats', signer=url_signer),
         create_playlist_url=URL('create_playlist', signer=url_signer),
@@ -198,6 +205,7 @@ def dashboard():
 @action('load_leaderboard')
 @action.uses(db, auth.user)
 def load_leaderboard():
+    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
     rows = db(db.user_playlist.leaderboard_display == True).select().as_list()
     for row in rows:
         r = db(db.auth_user.id == row["user_id"]).select().first()
@@ -245,7 +253,6 @@ def get_rating():
 @action('leaderboard')
 @action.uses(db, auth.user, 'leaderboard.html')
 def leaderboard():
-    print("User:", models.get_user_email())
     return dict(
         load_leaderboard_url=URL('load_leaderboard', signer=url_signer),
         upvote_url=URL('upvote', signer=url_signer),
@@ -256,6 +263,7 @@ def leaderboard():
 @action('load_playlist/<playlist_id:int>')
 @action.uses(db, auth.user)
 def load_playlist(playlist_id):
+    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
     temp = db(db.user_playlist.id == playlist_id).select().first()
     temp2 = sp.playlist_items(temp["spotify_playlist_id"])
     rows = {
@@ -276,7 +284,6 @@ def load_playlist(playlist_id):
 @action('view_playlist/<playlist_id:int>')
 @action.uses(db, auth.user, 'view_playlist.html')
 def view_playlist(playlist_id):
-    print("User:", models.get_user_email())
     return dict(
         load_playlist_url=URL('load_playlist', playlist_id, signer=url_signer),
     )
@@ -284,5 +291,4 @@ def view_playlist(playlist_id):
 @action('account_mng')
 @action.uses(db, auth, 'account_mng.html')
 def account_mng():
-    print("User:", models.get_user_email())
     return dict()
