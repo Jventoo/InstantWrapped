@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css">
     [[block page_head]]<!-- individual pages can customize header here -->[[end]]
   </head>
-  <body class="mx-2">
+  <body>
     <!-- Navigation bar -->
     <nav class="navbar is-black mt-2" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
@@ -54,19 +54,20 @@
         </div>
       </div>
     </nav>
-    <hr class="navbar-divider">
 
     <!-- beginning of HTML inserted by extending template -->
     [[include]]
     <!-- end of HTML inserted by extending template -->
-    <div class="content has-text-centered">
-      <p>
-        Created by <a href="https://www.jackvento.com/">Jack Vento</a>, 
-        <a href="https://github.com/Alex-Rah">Alex Rah</a>, 
-        <a href="https://github.com/calbhong">Calvin Hong</a>, 
-        and <a href="https://github.com/noelnour">Nicole Bishara</a>.
-      </p>
-    </div>
+    <footer class="footer">
+      <div class="hero has-text-centered">
+        <p>
+          Created by <a href="https://www.jackvento.com/">Jack Vento</a>, 
+          <a href="https://github.com/Alex-Rah">Alex Rah</a>, 
+          <a href="https://github.com/calbhong">Calvin Hong</a>, 
+          and <a href="https://github.com/noelnour">Nicole Bishara</a>.
+        </p>
+      </div>
+    </footer>
   </body>
   <script src="js/sugar.min.js"></script>
   <script src="js/axios.min.js"></script>
