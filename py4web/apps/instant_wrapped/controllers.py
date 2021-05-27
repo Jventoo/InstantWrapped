@@ -57,6 +57,11 @@ def get_artist(name):
 def index():
     return dict()
 
+@action('privacy-policy')
+@action.uses(db,'privacy_policy.html')
+def privacyPolicy():
+    return dict()
+
 @action('get_statistics/<range>/<artist_lim:int>/<track_lim:int>/<recent_lim:int>/<genre_lim:int>/<album_lim:int>')
 @action.uses(db, auth.user)
 def get_statistics(
