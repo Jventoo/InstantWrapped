@@ -6,28 +6,30 @@
     }
 </style>
 <div class="section" id="vue-target" v-cloak>
-    <a class="button is-rounded is-white is-medium" href="[[=URL('leaderboard')]]" style="position:absolute;top:450px;right:250px"><b>Leaderboard!</b></a>
+    <a class="button is-rounded is-white is-medium" href="[[=URL('leaderboard')]]" style="position:absolute;top:450px;right:250px">
+        <b>Leaderboard!</b>
+    </a>
     <div class="columns is-mobile">
         <div class="column is-four-fifths">
             <div class="columns is-mobile">
                 <div class="column is-one-third">
                     <button type="submit" @click="load_stats(0)"
-                            class="button is-primary">
-                        <i> Short Term Stats </i>
+                            class="button is-success is-rounded">
+                        <p class="is-family-sans-serif">  Short Term Stats</p>
                     </button>
                 </div>
 
                 <div class="column is-one-third">
                     <button type="submit" @click="load_stats(1)"
-                            class="button is-primary">
-                        <i> Medium Term Stats </i>
+                            class="button is-success is-rounded">
+                        <p> Medium Term Stats </p>
                     </button>
                 </div>
 
                 <div class="column is-one-third">
                     <button type="submit" @click="load_stats(2)"
-                            class="button is-primary">
-                        <i> Long Term Stats </i>
+                            class="button is-success is-rounded">
+                        <p> Long Term Stats </p>
                     </button>
                 </div>
 
