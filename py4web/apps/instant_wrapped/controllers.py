@@ -32,6 +32,7 @@ from .common import db, session, T, cache, auth, logger, authenticated, unauthen
 from .models import get_user_email, get_user
 from py4web.utils.url_signer import URLSigner
 from . import settings, models
+import ast
 import json
 
 url_signer = URLSigner(session)
@@ -156,8 +157,11 @@ def create_playlist():
 @action.uses(db, auth.user)
 def post_playlist():
     pid = request.json.get('pid')
+    post_status = request.json.get('current_status')
+    print(post_status)
+    print(type(post_status))
     db((db.user_playlist.user_id == get_user()) & (db.user_playlist.spotify_playlist_id == pid)).update(
-        leaderboard_display=True,
+        leaderboard_display=post_status,
     )
     return "ok"
 
@@ -212,7 +216,6 @@ def load_leaderboard():
         pName = playlist["name"]
         row["playlist_name"] = pName
     rows2 = sorted(rows, key=lambda i: i['rate_score'],reverse=True)
-    print(rows)
     return dict(rows = rows2)
 
 
@@ -261,7 +264,15 @@ def leaderboard():
 @action('load_playlist/<playlist_id:int>')
 @action.uses(db, auth.user)
 def load_playlist(playlist_id):
+    current_user = get_user()
     temp = db(db.user_playlist.id == playlist_id).select().first()
+    playlist_owner = temp["user_id"]
+    print(temp["leaderboard_display"])
+    print("CASTING GAP")
+    currently_displayed = ast.literal_eval((temp["leaderboard_display"]))
+    print (currently_displayed)
+    print(type(currently_displayed))
+    pid = temp["spotify_playlist_id"]
     temp2 = sp.playlist_items(temp["spotify_playlist_id"])
     rows = {
         "tracks": [],
@@ -276,7 +287,7 @@ def load_playlist(playlist_id):
             name += artist_data[j]["name"] + ", "
         name = name[:-2:]
         rows["authors"].append(name)
-    return dict(rows = rows)
+    return dict(rows = rows, current_user = current_user, playlist_owner = playlist_owner, currently_displayed = currently_displayed, pid = pid)
 
 @action('view_playlist/<playlist_id:int>')
 @action.uses(db, auth.user, 'view_playlist.html')
@@ -284,6 +295,7 @@ def view_playlist(playlist_id):
     print("User:", models.get_user_email())
     return dict(
         load_playlist_url=URL('load_playlist', playlist_id, signer=url_signer),
+        post_playlist_url=URL('post_playlist', signer=url_signer),
     )
 
 @action('account_mng')
