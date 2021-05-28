@@ -6,41 +6,55 @@
     }
 </style>
 <div class="section" id="vue-target" v-cloak>
-    <a class="button is-rounded is-white is-medium" href="[[=URL('leaderboard')]]" style="position:absolute;top:450px;right:250px"><b>Leaderboard!</b></a>
+    <h1 class="title">Select Your Preferred Musical Time Capsule Below &nbsp; <span class="icon-text"><span class="icon"> <i class="fa fa-music"></i> </span> </span> </h1>
     <div class="columns is-mobile">
         <div class="column is-four-fifths">
             <div class="columns is-mobile">
                 <div class="column is-one-third">
                     <button type="submit" @click="load_stats(0)"
-                            class="button is-primary">
-                        <i> Short Term Stats </i>
+                            class="button is-success is-rounded is-outlined is-medium">
+                            <span class="icon">
+                                <i class="fa fa-thermometer-half"></i>
+                            </span>
+                        <span>Short Term Stats</span>
                     </button>
                 </div>
 
                 <div class="column is-one-third">
                     <button type="submit" @click="load_stats(1)"
-                            class="button is-primary">
-                        <i> Medium Term Stats </i>
+                            class="button is-success is-rounded is-outlined is-medium">
+                            <span class="icon">
+                                <i class="fa fa-thermometer-three-quarters"></i>
+                            </span>
+                        <span>Medium Term Stats</span>
                     </button>
                 </div>
 
                 <div class="column is-one-third">
                     <button type="submit" @click="load_stats(2)"
-                            class="button is-primary">
-                        <i> Long Term Stats </i>
+                            class="button is-success is-rounded is-outlined is-medium">
+                            <span class="icon">
+                                <i class="fa fa-thermometer-full"></i>
+                            </span>
+                        <span>Long Term Stats</span>
                     </button>
                 </div>
 
             </div>
         </div>
         <div class="column is-one-fifth">
-            <!--            Recent User Activity-->
+            <a class="button is-rounded is-dark is-outlined is-medium" href="[[=URL('leaderboard')]]">
+                <span class="icon">
+                    <i class="fa fa-bar-chart"></i>
+                </span>
+                <span>Leaderboard</span>
+            </a>
         </div>
     </div>
 
 
     <div v-if="time_range === 0" class="container block">
-        <div class="title">Select Short Term Data!</div>
+        <div class="title">You Selected: Short Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
@@ -50,7 +64,7 @@
     </div>
 
     <div v-if="time_range === 1" class="container block">
-        <div class="title">Select Medium Term Data!</div>
+        <div class="title">You Selected: Medium Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
@@ -60,7 +74,7 @@
     </div>
 
     <div v-if="time_range === 2" class="container block">
-        <div class="title">Select Long Term Data!</div>
+        <div class="title">You Selected: Long Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
@@ -83,8 +97,8 @@
         </table>
         <div v-if="save_mode === false">
             <button type="submit" @click="set_save_status(true)"
-                    class="button is-primary">
-                <i> Save Playlist to Library </i>
+                    class="button is-success is-rounded is-medium is-outlined">
+                Save Playlist to Library
             </button>
         </div>
         <div v-else>
@@ -101,18 +115,18 @@
                     <div class="field">
                         <div class="control">
                             <input type="submit" @click="create_playlist(top_tracks)" value="Save Playlist"
-                                   class="button is-primary">
+                                   class="button is-dark is-rounded">
                             <input type="submit" @click="set_save_status(false)" value="Cancel"
-                                   class="button is-warning">
+                                   class="button is-light is-rounded">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div v-if="playlist_to_post">
+        <div v-if="playlist_to_post" style="margin-top: 10px">
             <button type="submit" @click="post_playlist(pid)"
-                    class="button is-primary">
-                <i> Post Playlist to Leaderboard! </i>
+                    class="button is-success is-rounded is-medium is-outlined">
+                Post Playlist to Leaderboard
             </button>
             <i> (As of right now, this is your only chance to post this playlist to the leaderboards!) </i>
         </div>
