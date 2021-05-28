@@ -6,8 +6,7 @@ import copy
 import os
 import sys
 import logging
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+import datetime
 from py4web import Session, Cache, Translator, Flash, DAL, Field, action
 from py4web.utils.mailer import Mailer
 from py4web.utils.auth import Auth
@@ -83,7 +82,13 @@ elif settings.SESSION_TYPE == "database":
 # Instantiate the object and actions that handle auth
 # #######################################################
 
-auth = Auth(session, db, define_tables=False, extra_fields=[Field("access_token", readable=False, writable=False), Field("refresh_token", readable=False, writable=False)])
+auth = Auth(session, db, define_tables=False, extra_fields=[
+        Field("access_token", readable=False, writable=False), Field("refresh_token", readable=False, writable=False),
+        Field("access_token_creation", 'datetime', readable=False, writable=False),
+        Field("profile_picture", readable=False, writable=False), Field("profile_url", readable=False, writable=False),
+        Field("biography", readable=True, writable=True),
+    ]
+)
 
 # Fixes the messages.
 auth_messages = copy.deepcopy(auth.MESSAGES)
@@ -239,13 +244,3 @@ spotify_scope = [
 spotify_ranges = [
     'short_term', 'medium_term', 'long_term'
 ]
-
-# sp = spotipy.Spotify(auth.current_user.get('access_token'))
-# sp = spotipy.Spotify(
-#     auth_manager=SpotifyOAuth(
-#         client_id=settings.SPOTIFY_CLIENT_ID,
-#         client_secret=settings.SPOTIFY_CLIENT_SECRET,
-#         redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-#         scope=spotify_scope
-#     )
-# )

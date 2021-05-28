@@ -25,27 +25,43 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
-from requests.api import get
+from requests.api import get, post
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges#, sp
-from .models import get_user_email, get_user
+import requests
+from urllib.error import HTTPError
+from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, spotify_ranges
 from py4web.utils.url_signer import URLSigner
 from . import settings, models
 import ast
 import json
+import datetime
 
 url_signer = URLSigner(session)
-# sp = spotipy.Spotify(auth.current_user.get('access_token'))
 
 # #######################################################
 # Helpers
 # #######################################################
 
+def get_sp():
+    # Use refresh token for new sp if expiring (access tokens last one hour)
+    if (models.get_time() - db.auth_user[auth.current_user.get('id')]['access_token_creation'] > datetime.timedelta(minutes=50)):
+        res = post("https://accounts.spotify.com/api/token", 
+            data = {
+                'grant_type': 'refresh_token',
+                'refresh_token': db.auth_user[auth.current_user.get('id')]['refresh_token'],
+            },
+            auth=(settings.OAUTH2SPOTIFY_CLIENT_ID, settings.OAUTH2SPOTIFY_CLIENT_SECRET)
+        )
+        data = res.json()
+        db(db.auth_user.id == auth.current_user.get('id')).update(access_token=data['access_token'], access_token_creation=models.get_time())
+    
+    return spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
+
 def get_artist(name):
-    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
+    sp = get_sp()
     results = sp.search(q='artist:' + name, type='artist')
     items = results['artists']['items']
     if len(items) > 0:
@@ -63,7 +79,7 @@ def index():
     return dict()
 
 @action('privacy-policy')
-@action.uses(db,'privacy_policy.html')
+@action.uses(db, auth, 'privacy_policy.html')
 def privacyPolicy():
     return dict()
 
@@ -86,7 +102,7 @@ def get_statistics(
     """
     statistics = dict()
     assert range in spotify_ranges
-    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
+    sp = get_sp()
 
     top_artists = sp.current_user_top_artists(time_range=range, limit=artist_lim)
     top_tracks = sp.current_user_top_tracks(time_range=range, limit=track_lim)
@@ -151,7 +167,7 @@ def create_playlist():
         tids.append(t['id'])
     if name is None or not name:
         name = "Instant Wrapped Top Tracks"
-    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
+    sp = get_sp()
 
     user_id = sp.me()['id']
     pid = sp.user_playlist_create(user_id, name)['id']
@@ -164,10 +180,8 @@ def create_playlist():
 @action.uses(db, auth.user)
 def post_playlist():
     pid = request.json.get('pid')
-    post_status = request.json.get('current_status')
-    print(post_status)
-    print(type(post_status))
-    db((db.user_playlist.user_id == get_user()) & (db.user_playlist.spotify_playlist_id == pid)).update(
+    post_status = request.json.get('post_status')
+    db((db.user_playlist.user_id == models.get_user()) & (db.user_playlist.spotify_playlist_id == pid)).update(
         leaderboard_display=post_status,
     )
     return "ok"
@@ -175,7 +189,7 @@ def post_playlist():
 @action('save_playlist', method='POST')
 @action.uses(db, auth.user)
 def save_playlist():
-    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
+    sp = get_sp()
     pid = request.json.get('pid')
     sp.current_user_follow_playlist(pid)
     return dict()
@@ -214,7 +228,7 @@ def dashboard():
 @action('load_leaderboard')
 @action.uses(db, auth.user)
 def load_leaderboard():
-    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
+    sp = get_sp()
     rows = db(db.user_playlist.leaderboard_display == True).select().as_list()
     for row in rows:
         r = db(db.auth_user.id == row["user_id"]).select().first()
@@ -234,10 +248,11 @@ def upvote():
     upvote_status = request.json.get('upvote_status')
     new_score = request.json.get('new_score')
     assert playlist_id is not None and upvote_status is not None
+    
     db.playlist_upvote.update_or_insert(
-        ((db.playlist_upvote.playlist_id == playlist_id) & (db.playlist_upvote.rater == get_user())),
+        ((db.playlist_upvote.playlist_id == playlist_id) & (db.playlist_upvote.rater == models.get_user())),
         playlist_id=playlist_id,
-        rater=get_user(),
+        rater=models.get_user(),
         upvote=upvote_status,
     )
 
@@ -251,7 +266,7 @@ def upvote():
 def get_rating():
     playlist_id = request.params.get('playlist_id')
     row = db((db.playlist_upvote.playlist_id == playlist_id) &
-             (db.playlist_upvote.rater == get_user())).select().first()
+             (db.playlist_upvote.rater == models.get_user())).select().first()
     upvote_status = row.upvote if row is not None else 0
     temp = db(db.user_playlist.id == playlist_id).select().first()
     current_score = temp.rate_score
@@ -271,21 +286,19 @@ def leaderboard():
 @action('load_playlist/<playlist_id:int>')
 @action.uses(db, auth.user)
 def load_playlist(playlist_id):
-    sp = spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
-    current_user = get_user()
+    sp = get_sp()
+    
+    current_user = models.get_user()
     temp = db(db.user_playlist.id == playlist_id).select().first()
     playlist_owner = temp["user_id"]
-    print(temp["leaderboard_display"])
-    print("CASTING GAP")
     currently_displayed = ast.literal_eval((temp["leaderboard_display"]))
-    print (currently_displayed)
-    print(type(currently_displayed))
     pid = temp["spotify_playlist_id"]
-    temp2 = sp.playlist_items(temp["spotify_playlist_id"])
     rows = {
         "tracks": [],
         "authors": [],
     }
+
+    temp2 = sp.playlist_items(temp["spotify_playlist_id"])
     track_data = temp2["items"]
     for i in range(len(track_data)):
         rows["tracks"].append(track_data[i]["track"]["name"])
@@ -304,8 +317,3 @@ def view_playlist(playlist_id):
         load_playlist_url=URL('load_playlist', playlist_id, signer=url_signer),
         post_playlist_url=URL('post_playlist', signer=url_signer),
     )
-
-@action('account_mng')
-@action.uses(db, auth, 'account_mng.html')
-def account_mng():
-    return dict()

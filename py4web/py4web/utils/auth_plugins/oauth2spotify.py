@@ -14,4 +14,6 @@ class OAuth2Spotify(OAuth2):
         "email": "email",
         "sso_id": "id",
         "username": "display_name",
+        "profile_picture": "images.0.url",
+        "profile_url": "external_urls.spotify"
     }

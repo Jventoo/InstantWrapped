@@ -7,6 +7,7 @@ import random
 import jwt
 import string
 import requests
+import datetime
 from py4web.core import URL, abort, redirect, request
 
 
@@ -38,8 +39,7 @@ class SSO(object):
     ### methods that probably do not need to be overwritten
 
     def _handle_callback(self, auth, get_vars):
-        data, token = self.callback(get_vars)
-        print(data)
+        data, token, refresh = self.callback(get_vars)
         if not data:
             abort(401)
         error = data.get("error")
@@ -62,6 +62,8 @@ class SSO(object):
                     user[key] = value
             user["sso_id"] = "%s:%s" % (self.name, user["sso_id"])
             user["access_token"] = token
+            user["refresh_token"] = refresh
+            user["access_token_creation"] = datetime.datetime.utcnow()
             if not "username" in user:
                 user["username"] = user["sso_id"]
             # store or retrieve the user
@@ -161,8 +163,6 @@ class OAuth2(SSO):
         )
         res = requests.post(self.token_url, data=data)
         output = res.json()
-        print("Output:")
-        print(output)
         token = output.get("id_token")
         if token is not None:
             # Lets not get the  user attributes via the userinfo endpoint
@@ -172,10 +172,11 @@ class OAuth2(SSO):
         else:
             # fallback to old approach if "id_token" is not in the response
             token = output.get("access_token")
+            refresh = output.get("refresh_token")
             headers = {"Authorization": "Bearer %s" % token}
             res = requests.get(self.userinfo_url, headers=headers)
             data = res.json()
-        return data, token
+        return data, token, refresh
 
     def revoke(self, token):
         requests.post(self.revoke_url, data=dict(token=token))

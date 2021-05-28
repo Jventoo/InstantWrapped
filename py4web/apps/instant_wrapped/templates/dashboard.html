@@ -53,37 +53,37 @@
     </div>
 
 
-    <div v-if="time_range === 0" class="container block">
+    <div v-if="stats_loaded && time_range === 0" class="container block">
         <div class="title">You Selected: Short Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
             <option>Top Artists</option>
         </select>
-        <span>Selected: {{ desired_data }}</span>
+        <!--<span>Selected: {{ desired_data }}</span>-->
     </div>
 
-    <div v-if="time_range === 1" class="container block">
+    <div v-if="stats_loaded && time_range === 1" class="container block">
         <div class="title">You Selected: Medium Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
             <option>Top Artists</option>
         </select>
-        <span>Selected: {{ desired_data }}</span>
+        <!--<span>Selected: {{ desired_data }}</span>-->
     </div>
 
-    <div v-if="time_range === 2" class="container block">
+    <div v-if="stats_loaded && time_range === 2" class="container block">
         <div class="title">You Selected: Long Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
             <option>Top Artists</option>
         </select>
-        <span>Selected: {{ desired_data }}</span>
+        <!--<span>Selected: {{ desired_data }}</span>-->
     </div>
 
-    <div v-if="desired_data === 'Top Songs'" class="section">
+    <div v-if="stats_loaded && desired_data === 'Top Songs'" class="section">
         <h1 class="title">Your Top Songs </h1>
         <table class="table is-striped is-fullwidth">
             <tr>
@@ -95,13 +95,13 @@
                 <td>{{rows["top_tracks"][i]}}</td>
             </tr>
         </table>
-        <div v-if="save_mode === false">
+        <div v-if="!playlist_saved && save_mode === false">
             <button type="submit" @click="set_save_status(true)"
                     class="button is-success is-rounded is-medium is-outlined">
                 Save Playlist to Library
             </button>
         </div>
-        <div v-else>
+        <div v-else-if="!playlist_saved && save_mode === true">
             <div v-if="save_mode" class="container block">
                 <div class="title">Please give your playlist a name</div>
                 <div class="form">
@@ -128,11 +128,9 @@
                     class="button is-success is-rounded is-medium is-outlined">
                 Post Playlist to Leaderboard
             </button>
-            <i> (As of right now, this is your only chance to post this playlist to the leaderboards!) </i>
         </div>
     </div>
-
-    <div v-if="desired_data === 'Top Artists'" class="section">
+    <div v-else-if="stats_loaded && desired_data === 'Top Artists'" class="section">
         <h1 class="title">Your Top Artists </h1>
         <table class="table is-striped is-fullwidth">
             <tr>
@@ -145,7 +143,9 @@
             </tr>
         </table>
     </div>
-
+    <div v-else-if="stats_loading" class="section">
+        <progress class="progress is-medium is-success" max="100"></progress>
+    </div>
 
 </div>
 [[block page_scripts]]
