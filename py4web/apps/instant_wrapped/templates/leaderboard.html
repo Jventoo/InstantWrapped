@@ -33,8 +33,11 @@
                 <td>{{row.playlist_author}}</td>
                 <td>
                     <button type="submit" @click="save_playlist(row.spotify_playlist_id)"
-                        class="button is-rounded is-black">
-                        <i class="fa fa-save"></i>
+                        class="button is-rounded is-dark is-outlined">
+                        <span class="icon">
+                            <i class="fa fa-thumb-tack"></i>
+                        </span>
+                        <span>Save Playlist to Library</span>
                     </button>
                 </td>
             </tr>
