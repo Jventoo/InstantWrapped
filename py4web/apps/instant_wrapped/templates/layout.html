@@ -66,15 +66,37 @@
     <!-- beginning of HTML inserted by extending template -->
     [[include]]
     <!-- end of HTML inserted by extending template -->
-    <div class="content has-text-centered">
+    <div class="content has-text-centered footer">
       <p>
-        Created by <a href="https://www.jackvento.com/">Jack Vento</a>, 
-        <a href="https://github.com/Alex-Rah">Alex Rah</a>, 
-        <a href="https://github.com/calbhong">Calvin Hong</a>, 
-        and <a href="https://github.com/noelnour">Nicole Bishara</a>.
+        Created by <a class="name" href="https://www.jackvento.com/">Jack Vento</a>, 
+        <a class="name" href="https://github.com/Alex-Rah">Alex Rah</a>, 
+        <a class="name" href="https://github.com/calbhong">Calvin Hong</a>, 
+        and <a class="name" href="https://github.com/noelnour">Nicole Bishara</a>.
       </p>
     </div>
   </body>
+  <style>
+    .footer{
+      position: relative;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color: black;
+      color: white;
+      text-align: center;
+      height: -20px;
+      margin-top: 2px;
+    }
+    a.name:link{
+      color:gray;
+    }
+    a.name:visited{
+      color:gray;
+    }
+    a.name:hover{
+      color:green;
+    }
+</style>
   <script src="js/sugar.min.js"></script>
   <script src="js/axios.min.js"></script>
   <script src="js/vue.js"></script>
