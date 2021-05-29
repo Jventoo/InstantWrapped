@@ -56,7 +56,9 @@ def get_sp():
             auth=(settings.OAUTH2SPOTIFY_CLIENT_ID, settings.OAUTH2SPOTIFY_CLIENT_SECRET)
         )
         data = res.json()
-        db(db.auth_user.id == auth.current_user.get('id')).update(access_token=data['access_token'], access_token_creation=models.get_time())
+        db(db.auth_user.id == auth.current_user.get('id')).update(
+            access_token=data['access_token'], access_token_creation=models.get_time()
+        )
     
     return spotipy.Spotify(auth=db.auth_user[auth.current_user.get('id')]['access_token'])
 
@@ -146,6 +148,47 @@ def get_statistics(
     top_albums = sorted(album_frequency, key=album_frequency.get, reverse=True)
     top_albums = top_albums[0:album_lim]
 
+    # Insert top items into db
+    for x, item in enumerate(top_artists['items']):
+        models.store_top_artist(
+            item['name'], item['id'], x, range
+        )
+    
+    for x, item in enumerate(top_tracks['items']):
+        artist_id = db.artist.update_or_insert(
+            name=top_tracks['items'][x]['artists'][0]['name'],
+            spotify_artist_id=top_tracks['items'][x]['artists'][0]['id']
+        )
+        album_id = db.album.update_or_insert(
+            artist_id=artist_id,
+            name=top_tracks['items'][x]['album']['name'],
+            spotify_album_id=top_tracks['items'][x]['album']['id']
+        )
+        models.store_top_song(
+            album_id,
+            top_tracks['items'][x]['name'],
+            top_tracks['items'][x]['id'],
+            x, range
+        )
+
+    for x, item in enumerate(top_genres):
+        models.store_top_genre(
+            item, x, range
+        )
+    
+    for x, item in enumerate(top_albums):
+        top_album = sp.album(top_albums[x])
+        artist_id = db.artist.update_or_insert(
+            name=top_album['artists'][0]['name'], 
+            spotify_artist_id=top_album['artists'][0]['id']
+        )
+        models.store_top_album(
+            artist_id,
+            top_album['name'],
+            top_albums[x],
+            x, range
+        )
+
     # Fill stats dictionary with results
     statistics = {
         "artists": top_artists,
@@ -233,7 +276,33 @@ def update_profile():
 @action('load_profile', method='GET')
 @action.uses(db, auth.user)
 def get_profile():
-    return dict()
+    # CONSTANTS
+    num_songs = 5
+    num_artists = 5
+    num_genres = 5
+
+    uid = models.get_user()#int(request.params.get('user_id'))
+    assert uid is not None
+
+    name = db.auth_user[uid]['username']
+    picture = db.auth_user[uid]['profile_picture']
+    bio = db.auth_user[uid]['biography']
+
+    songs = db(db.user_top_song.user_id == uid).select(orderby=db.user_top_song.user_position).as_list()
+    songs = songs[0:num_songs]
+
+    artists = db(db.user_top_artist.user_id == uid).select(orderby=db.user_top_artist.user_position).as_list()
+    artists = artists[0:num_artists]
+
+    genres = db(db.user_top_genre.user_id == uid).select(orderby=db.user_top_genre.user_position).as_list()
+    genres = genres[0:num_genres]
+
+    pls = db(db.user_playlist.user_id == uid).select(orderby=db.user_playlist.rate_score).as_list()
+
+    return dict(
+        user_name=name, user_picture=picture, biography=bio,
+        top_songs=songs, top_artists=artists, top_genres=genres, playlists=pls
+    )
 
 @action('find_matches', method='GET')
 @action.uses(db, auth.user)
@@ -247,8 +316,7 @@ def load_leaderboard():
     rows = db(db.user_playlist.leaderboard_display == True).select().as_list()
     for row in rows:
         r = db(db.auth_user.id == row["user_id"]).select().first()
-        name = r.first_name + " " + r.last_name if r is not None else "Unknown"
-        row["playlist_author"] = name
+        row["playlist_author"] = r.username
         playlist = sp.playlist(row["spotify_playlist_id"])
         pName = playlist["name"]
         row["playlist_name"] = pName

@@ -17,38 +17,58 @@ def get_user():
     return db(
         db.auth_user.email == get_user_email()
     ).select().first().id if auth.current_user else None
-    # return auth.current_user if auth.current_user else None
 
 def get_time():
     return datetime.datetime.utcnow()
 
-def store_top_genre():
-    ## Check if genre already exists in database. If not, create it. Store it in db.
-    ## Create user_top_genre entry
+def store_top_genre(top_genre, pos, range):
+    id = db.genre.update_or_insert(name=top_genre)
+    db.user_top_genre.insert(
+        genre_id=id,
+        user_id=get_user(),
+        user_position=pos,
+        user_timespan=range
+    )
     return
 
-def store_top_artist():
-    # Check if album is in db.
-        # If it is, continue.
-        # If not, insert it.    
-            # Check if genres are inserted. If not, insert them
-    # Insert into user's top songs
+def store_top_artist(artist_name, artist_id, pos, range):
+    id = db.artist.update_or_insert(
+        name=artist_name, spotify_artist_id=artist_id
+    )
+    db.user_top_artist.insert(
+        artist_id=id,
+        user_id=get_user(),
+        user_position=pos,
+        user_timespan=range
+    )
     return
 
-def store_top_album():
-    # Check if album is in db.
-        # If it is, continue.
-        # If not, insert it.    
-            # Check if album artist is inserted. If not, insert them
-    # Insert into user's top songs
+def store_top_album(artist_id, album_name, album_id, pos, range):
+    id = db.album.update_or_insert(
+        artist_id=artist_id,
+        name=album_name,
+        spotify_album_id=album_id
+    )
+    db.user_top_album.insert(
+        album_id=id,
+        user_id=get_user(),
+        user_position=pos,
+        user_timespan=range
+    )
     return
 
-def store_top_song(sid, uid):
-    # Check if song is in db.
-        # If it is, continue.
-        # If not, insert it.    
-            # Check if song album is inserted. If not, insert them
-    # Insert into user's top songs
+def store_top_song(album_id, song_name, song_id, pos, range):
+    id = db.song.update_or_insert(
+        album_id=album_id,
+        name=song_name,
+        spotify_song_id=song_id
+    )
+    db.user_top_song.insert(
+        song_id=id,
+        user_id=get_user(),
+        user_position=pos,
+        user_timespan=range
+    )
     return
 
 def store_playlist(pid, uid):
@@ -58,8 +78,8 @@ def store_playlist(pid, uid):
     )
     return
 
-def store_review():
-    return
+# def store_review():
+#     return
 
 db.define_table(
     'genre',
@@ -68,10 +88,8 @@ db.define_table(
 
 db.define_table(
     'artist',
-    Field('genre_id', 'reference genre'),
     Field('name', requires=IS_NOT_EMPTY()),
     Field('spotify_artist_id', requires=IS_NOT_EMPTY()),
-    Field('leaderboard_pos', 'integer'),
 )
 
 db.define_table(
@@ -79,7 +97,6 @@ db.define_table(
     Field('artist_id', 'reference artist'),
     Field('name', requires=IS_NOT_EMPTY()),
     Field('spotify_album_id', requires=IS_NOT_EMPTY()),
-    Field('leaderboard_pos', 'integer'),
 )
 
 db.define_table(
@@ -87,7 +104,6 @@ db.define_table(
     Field('album_id', 'reference album'),
     Field('name', requires=IS_NOT_EMPTY()),
     Field('spotify_song_id', requires=IS_NOT_EMPTY()),
-    Field('leaderboard_pos', 'integer'),
 )
 
 db.define_table(
@@ -142,11 +158,11 @@ db.define_table(
 # for Spotify ID and we can look up what type of resource it is at
 # runtime. Not very accessible for our DB but I couldn't think of
 # another way with how references work.
-db.define_table(
-    'review',
-    Field('user_id', 'reference auth_user'),
-    Field('spotify_id', requires=IS_NOT_EMPTY()),
-    Field('description', 'text', requires=IS_NOT_EMPTY()),
-)
+# db.define_table(
+#     'review',
+#     Field('user_id', 'reference auth_user'),
+#     Field('spotify_id', requires=IS_NOT_EMPTY()),
+#     Field('description', 'text', requires=IS_NOT_EMPTY()),
+# )
 
 db.commit()
