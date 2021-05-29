@@ -225,6 +225,16 @@ def dashboard():
         post_playlist_url=URL('post_playlist', signer=url_signer),
     )
 
+@action('update_profile', method='POST')
+@action.uses(db, auth.user)
+def update_profile():
+    return dict()
+
+@action('load_profile', method='GET')
+@action.uses(db, auth.user)
+def get_profile():
+    return dict()
+
 @action('load_leaderboard')
 @action.uses(db, auth.user)
 def load_leaderboard():
