@@ -235,6 +235,11 @@ def update_profile():
 def get_profile():
     return dict()
 
+@action('find_matches', method='GET')
+@action.uses(db, auth.user)
+def get_matches():
+    return dict()
+
 @action('load_leaderboard')
 @action.uses(db, auth.user)
 def load_leaderboard():
