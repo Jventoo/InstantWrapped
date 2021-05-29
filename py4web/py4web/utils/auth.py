@@ -73,13 +73,13 @@ class AuthEnforcer(Fixture):
         if request.query_string:
             redirect_next = redirect_next + "?{}".format(request.query_string)
         self.auth.flash.set(message)
-        redirect(
-            URL(
-                self.auth.route,
-                page,
-                vars=dict(next=redirect_next),
-                use_appname=self.auth.param.use_appname_in_redirects,
-            )
+        redirect("auth/plugin/oauth2spotify/login"
+            # URL(
+            #     self.auth.route,
+            #     page,
+            #     vars=dict(next=redirect_next),
+            #     use_appname=self.auth.param.use_appname_in_redirects,
+            # )
         )
 
     def on_request(self):
@@ -264,12 +264,12 @@ class Auth(Fixture):
                 ),
                 Field(
                     "first_name",
-                    requires=ne,
+                    # requires=ne,
                     label=self.param.messages["labels"].get("first_name"),
                 ),
                 Field(
                     "last_name",
-                    requires=ne,
+                    # requires=ne,
                     label=self.param.messages["labels"].get("last_name"),
                 ),
                 Field("sso_id", readable=False, writable=False),
@@ -1253,5 +1253,7 @@ class DefaultAuthForms:
         self.auth.flash.set(self.auth.param.messages["flash"].get(key, key))
 
     def _postprocessing(self, action, form=None, user=None):
-        if not form or form.accepted:
+        if not form:
             redirect(self.auth.next.get(action) or URL("index"))
+        elif form.accepted:
+            redirect(URL("dashboard"))

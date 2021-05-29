@@ -6,8 +6,7 @@ import copy
 import os
 import sys
 import logging
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+import datetime
 from py4web import Session, Cache, Translator, Flash, DAL, Field, action
 from py4web.utils.mailer import Mailer
 from py4web.utils.auth import Auth
@@ -83,7 +82,13 @@ elif settings.SESSION_TYPE == "database":
 # Instantiate the object and actions that handle auth
 # #######################################################
 
-auth = Auth(session, db, define_tables=False)
+auth = Auth(session, db, define_tables=False, extra_fields=[
+        Field("access_token", readable=False, writable=False), Field("refresh_token", readable=False, writable=False),
+        Field("access_token_creation", 'datetime', readable=False, writable=False),
+        Field("profile_picture", readable=False, writable=False), Field("profile_url", readable=False, writable=False),
+        Field("biography", readable=True, writable=True),
+    ]
+)
 
 # Fixes the messages.
 auth_messages = copy.deepcopy(auth.MESSAGES)
@@ -101,11 +106,12 @@ auth_button_classes = {
     "submit": "button is-primary",
 }
 
-auth.use_username = False
+auth.use_username = True
 auth.param.button_classes = auth_button_classes
+auth.param.allowed_actions = settings.ALLOWED_ACTIONS
 auth.param.registration_requires_confirmation = False
 auth.param.registration_requires_approval = False
-auth.param.allowed_actions = settings.ALLOWED_ACTIONS
+auth.param.login_after_registration = True
 auth.param.login_expiration_time = 3600
 # FIXME: Readd for production.
 auth.param.password_complexity = {"entropy": 2}
@@ -156,7 +162,7 @@ if settings.OAUTH2GOOGLE_CLIENT_ID:
     )
     
 if settings.OAUTH2SPOTIFY_CLIENT_ID:
-    from py4web.utils.auth_plugins.oauth2spotify import OAuth2Spotify  # TESTED
+    from py4web.utils.auth_plugins.oauth2spotify import OAuth2Spotify  # TESTING
 
     auth.register_plugin(
         OAuth2Spotify(
@@ -216,6 +222,17 @@ if settings.USE_CELERY:
     )
 
 # #######################################################
+# Enable authentication
+# #######################################################
+auth.enable(uses=(session, T, db), env=dict(T=T))
+
+# #######################################################
+# Define convenience decorators
+# #######################################################
+unauthenticated = ActionFactory(db, session, T, flash, auth)
+authenticated = ActionFactory(db, session, T, flash, auth.user)
+
+# #######################################################
 # Spotipy Objects
 # #######################################################
 spotify_scope = [
@@ -227,23 +244,3 @@ spotify_scope = [
 spotify_ranges = [
     'short_term', 'medium_term', 'long_term'
 ]
-
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(
-        client_id=settings.SPOTIFY_CLIENT_ID,
-        client_secret=settings.SPOTIFY_CLIENT_SECRET,
-        redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-        scope=spotify_scope
-    )
-)
-
-# #######################################################
-# Enable authentication
-# #######################################################
-auth.enable(uses=(session, T, db), env=dict(T=T))
-
-# #######################################################
-# Define convenience decorators
-# #######################################################
-unauthenticated = ActionFactory(db, session, T, flash, auth)
-authenticated = ActionFactory(db, session, T, flash, auth.user)

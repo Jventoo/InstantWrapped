@@ -166,7 +166,7 @@ class FormStyleFactory:
                     continue
 
             # ignore blob fields
-            if field.type == "blob":  # never display blobs (mistake?)
+            if field.type == "blob" or field.type == "id":  # never display blobs (mistake?)
                 continue
 
             # ignore fields of type id its value is equal to None

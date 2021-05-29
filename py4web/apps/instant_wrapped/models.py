@@ -24,16 +24,31 @@ def get_time():
 
 def store_top_genre():
     ## Check if genre already exists in database. If not, create it. Store it in db.
-    ## Create user_top_genree entry
+    ## Create user_top_genre entry
     return
 
 def store_top_artist():
+    # Check if album is in db.
+        # If it is, continue.
+        # If not, insert it.    
+            # Check if genres are inserted. If not, insert them
+    # Insert into user's top songs
     return
 
 def store_top_album():
+    # Check if album is in db.
+        # If it is, continue.
+        # If not, insert it.    
+            # Check if album artist is inserted. If not, insert them
+    # Insert into user's top songs
     return
 
-def store_top_song():
+def store_top_song(sid, uid):
+    # Check if song is in db.
+        # If it is, continue.
+        # If not, insert it.    
+            # Check if song album is inserted. If not, insert them
+    # Insert into user's top songs
     return
 
 def store_playlist(pid, uid):
@@ -45,8 +60,6 @@ def store_playlist(pid, uid):
 
 def store_review():
     return
-
-db.auth_user.id.readable = db.auth_user.id.writable = False
 
 db.define_table(
     'genre',

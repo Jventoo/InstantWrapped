@@ -7,6 +7,7 @@ import random
 import jwt
 import string
 import requests
+import datetime
 from py4web.core import URL, abort, redirect, request
 
 
@@ -38,7 +39,7 @@ class SSO(object):
     ### methods that probably do not need to be overwritten
 
     def _handle_callback(self, auth, get_vars):
-        data = self.callback(get_vars)
+        data, token, refresh = self.callback(get_vars)
         if not data:
             abort(401)
         error = data.get("error")
@@ -56,8 +57,13 @@ class SSO(object):
                 value, parts = data, value.split(".")
                 for part in parts:
                     value = value[int(part) if part.isdigit() else part]
+                    if key == 'email' and not value:
+                        continue
                     user[key] = value
             user["sso_id"] = "%s:%s" % (self.name, user["sso_id"])
+            user["access_token"] = token
+            user["refresh_token"] = refresh
+            user["access_token_creation"] = datetime.datetime.utcnow()
             if not "username" in user:
                 user["username"] = user["sso_id"]
             # store or retrieve the user
@@ -68,7 +74,7 @@ class SSO(object):
                 data["id"] = data.get("username") or data.get("email")
         user_id = data.get("id")
         auth.store_user_in_session(user_id)
-        redirect(URL("index"))
+        redirect(URL("dashboard"))
 
     @staticmethod
     def _build_url(base, data):
@@ -166,10 +172,11 @@ class OAuth2(SSO):
         else:
             # fallback to old approach if "id_token" is not in the response
             token = output.get("access_token")
+            refresh = output.get("refresh_token")
             headers = {"Authorization": "Bearer %s" % token}
             res = requests.get(self.userinfo_url, headers=headers)
             data = res.json()
-        return data
+        return data, token, refresh
 
     def revoke(self, token):
         requests.post(self.revoke_url, data=dict(token=token))
