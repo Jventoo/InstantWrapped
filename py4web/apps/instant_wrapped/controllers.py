@@ -25,6 +25,7 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
+from re import M
 from requests.api import get, post
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
@@ -331,4 +332,28 @@ def view_playlist(playlist_id):
     return dict(
         load_playlist_url=URL('load_playlist', playlist_id, signer=url_signer),
         post_playlist_url=URL('post_playlist', signer=url_signer),
+        add_comment_url=URL('add_comment', signer=url_signer),
+        add_reply_url=URL('add_reply',signer=url_signer),
+        load_comments_url=URL('load_comments',signer=url_signer),
     )
+
+@action('add_comment', method="POST")
+@action.uses(db, auth.user)
+def add_comment():
+    r = db(db.auth_user.email == get_user_email()).select().first()
+    id = db.post.insert(
+        post_content=request.json.get('post_content'),
+    )
+    name = r.first_name + " " + r.last_name if r is not None else "Unknown"
+    current_user_email = get_user_email()
+    return dict(id=id, author=name, current_user_email = current_user_email, current_user_name = name)
+
+@action('add_reply', method="POST")
+@action.uses(db, auth.user)
+def add_reply():
+    return dict()
+
+@action('load_comments')
+@action.uses(db, auth.user)
+def load_comments():
+    return dict()
