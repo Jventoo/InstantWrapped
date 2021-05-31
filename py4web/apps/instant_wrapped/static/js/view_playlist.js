@@ -22,7 +22,7 @@ let init = (app) => {
         axios.post(post_playlist_url,
             {
                 pid: app.vue.pid,
-                current_status: post_status,
+                post_status: post_status,
             });
     };
 

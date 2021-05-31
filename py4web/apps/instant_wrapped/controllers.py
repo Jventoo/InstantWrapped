@@ -323,7 +323,7 @@ def get_profile(user_id):
         playlist = sp.playlist(pl["spotify_playlist_id"])
         pName = playlist["name"]
         pl["playlist_name"] = pName
-    
+
     return dict(
         user_name=name, user_picture=picture, biography=bio,
         top_songs=songs, top_artists=artists, top_genres=genres, playlists=pls
