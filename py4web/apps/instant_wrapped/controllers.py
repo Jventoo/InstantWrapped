@@ -293,15 +293,15 @@ def dashboard():
 def update_profile():
     return dict()
 
-@action('load_profile', method='GET')
+@action('load_profile/<user_id:int>', method='GET')
 @action.uses(db, auth.user)
-def get_profile():
+def get_profile(user_id):
     # CONSTANTS
     num_songs = 5
     num_artists = 5
     num_genres = 5
 
-    uid = models.get_user()#int(request.params.get('user_id'))
+    uid = user_id
     assert uid is not None
 
     name = db.auth_user[uid]['username']
@@ -312,18 +312,43 @@ def get_profile():
         (db.user_top_song.user_id == uid) & (db.user_top_song.user_timespan == spotify_ranges[2])
     ).select(orderby=db.user_top_song.user_position).as_list()
     songs = songs[0:num_songs]
+    for song in songs:
+        temp = db(db.song.id == song["song_id"]).select().first()
+        if temp is None:
+            song["song_name"] = "None Type"
+        else:
+            song["song_name"] = temp.name
+
 
     artists = db(
         (db.user_top_artist.user_id == uid) & (db.user_top_artist.user_timespan == spotify_ranges[2])
     ).select(orderby=db.user_top_artist.user_position).as_list()
     artists = artists[0:num_artists]
+    for artist in artists:
+        temp = db(db.artist.id == artist["artist_id"]).select().first()
+        if temp is None:
+            artist["artist_name"] = "None Type"
+        else:
+            artist["artist_name"] = temp.name
+
 
     genres = db(
         (db.user_top_genre.user_id == uid) & (db.user_top_genre.user_timespan == spotify_ranges[2])
     ).select(orderby=db.user_top_genre.user_position).as_list()
     genres = genres[0:num_genres]
+    for genre in genres:
+        temp = db(db.genre.id == genre["genre_id"]).select().first()
+        if temp is None:
+            genre["genre_name"] = "None Type"
+        else:
+            genre["genre_name"] = temp.name
 
     pls = db(db.user_playlist.user_id == uid).select(orderby=db.user_playlist.rate_score).as_list()
+    sp = get_sp()
+    for pl in pls:
+        playlist = sp.playlist(pl["spotify_playlist_id"])
+        pName = playlist["name"]
+        pl["playlist_name"] = pName
 
     return dict(
         user_name=name, user_picture=picture, biography=bio,
@@ -335,6 +360,13 @@ def get_profile():
 def get_matches():
     return dict()
 
+@action('view_user_profile/<user_id:int>')
+@action.uses(db, auth.user, 'view_user_profile.html')
+def dashboard(user_id):
+    return dict(
+        load_profile_url=URL('load_profile', user_id, signer=url_signer),
+    )
+
 @action('load_leaderboard')
 @action.uses(db, auth.user)
 def load_leaderboard():
@@ -343,6 +375,7 @@ def load_leaderboard():
     for row in rows:
         r = db(db.auth_user.id == row["user_id"]).select().first()
         row["playlist_author"] = r.username
+        row["author_id"] = r.id
         playlist = sp.playlist(row["spotify_playlist_id"])
         pName = playlist["name"]
         row["playlist_name"] = pName
