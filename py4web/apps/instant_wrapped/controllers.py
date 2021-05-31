@@ -319,9 +319,11 @@ def get_profile(user_id):
 
     pls = db(db.user_playlist.user_id == uid).select(orderby=db.user_playlist.rate_score).as_list()
     sp = get_sp()
-    playlist = sp.playlist(pls[0]["spotify_playlist_id"])
-    pName = playlist["name"]
-    pls[0]["playlist_name"] = pName
+    for pl in pls:
+        playlist = sp.playlist(pl["spotify_playlist_id"])
+        pName = playlist["name"]
+        pl["playlist_name"] = pName
+    
     return dict(
         user_name=name, user_picture=picture, biography=bio,
         top_songs=songs, top_artists=artists, top_genres=genres, playlists=pls
