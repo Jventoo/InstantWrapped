@@ -308,7 +308,9 @@ def get_profile(user_id):
     picture = db.auth_user[uid]['profile_picture']
     bio = db.auth_user[uid]['biography']
 
-    songs = db(db.user_top_song.user_id == uid).select(orderby=db.user_top_song.user_position).as_list()
+    songs = db(
+        (db.user_top_song.user_id == uid) & (db.user_top_song.user_timespan == spotify_ranges[2])
+    ).select(orderby=db.user_top_song.user_position).as_list()
     songs = songs[0:num_songs]
     for song in songs:
         temp = db(db.song.id == song["song_id"]).select().first()
@@ -318,7 +320,9 @@ def get_profile(user_id):
             song["song_name"] = temp.name
 
 
-    artists = db(db.user_top_artist.user_id == uid).select(orderby=db.user_top_artist.user_position).as_list()
+    artists = db(
+        (db.user_top_artist.user_id == uid) & (db.user_top_artist.user_timespan == spotify_ranges[2])
+    ).select(orderby=db.user_top_artist.user_position).as_list()
     artists = artists[0:num_artists]
     for artist in artists:
         temp = db(db.artist.id == artist["artist_id"]).select().first()
@@ -328,7 +332,9 @@ def get_profile(user_id):
             artist["artist_name"] = temp.name
 
 
-    genres = db(db.user_top_genre.user_id == uid).select(orderby=db.user_top_genre.user_position).as_list()
+    genres = db(
+        (db.user_top_genre.user_id == uid) & (db.user_top_genre.user_timespan == spotify_ranges[2])
+    ).select(orderby=db.user_top_genre.user_position).as_list()
     genres = genres[0:num_genres]
     for genre in genres:
         temp = db(db.genre.id == genre["genre_id"]).select().first()
