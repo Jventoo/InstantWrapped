@@ -155,19 +155,32 @@ def get_statistics(
         )
     
     for x, item in enumerate(top_tracks['items']):
-        artist_id = db.artist.update_or_insert(
-            name=top_tracks['items'][x]['artists'][0]['name'],
-            spotify_artist_id=top_tracks['items'][x]['artists'][0]['id']
-        )
-        album_id = db.album.update_or_insert(
-            artist_id=artist_id,
-            name=top_tracks['items'][x]['album']['name'],
-            spotify_album_id=top_tracks['items'][x]['album']['id']
-        )
+        artist_name = item['artists'][0]['name']
+        album_name = item['album']['name']
+
+        artist_row = db(db.artist.name == artist_name).select().first()
+        if artist_row is None:
+            artist_id = db.artist.insert(
+                name=artist_name,
+                spotify_artist_id=item['artists'][0]['id']
+            )
+        else:
+            artist_id = artist_row.id
+
+        album_row = db(db.album.name == album_name).select().first()
+        if album_row is None:
+            album_id = db.album.insert(
+                artist_id=artist_id,
+                name=album_name,
+                spotify_album_id=item['album']['id']
+            )
+        else:
+            album_id = album_row.id
+        
         models.store_top_song(
             album_id,
-            top_tracks['items'][x]['name'],
-            top_tracks['items'][x]['id'],
+            item['name'],
+            item['id'],
             x, range
         )
 
@@ -177,15 +190,22 @@ def get_statistics(
         )
     
     for x, item in enumerate(top_albums):
-        top_album = sp.album(top_albums[x])
-        artist_id = db.artist.update_or_insert(
-            name=top_album['artists'][0]['name'], 
-            spotify_artist_id=top_album['artists'][0]['id']
-        )
+        top_album = sp.album(item)
+        artist_name = top_album['artists'][0]['name']
+
+        artist_row = db(db.artist.name == artist_name).select().first()
+        if artist_row is None:
+            artist_id = db.artist.insert(
+                name=artist_name,
+                spotify_artist_id=top_album['artists'][0]['id']
+            )
+        else:
+            artist_id = artist_row.id
+
         models.store_top_album(
             artist_id,
             top_album['name'],
-            top_albums[x],
+            item,
             x, range
         )
 

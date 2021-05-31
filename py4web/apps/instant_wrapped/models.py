@@ -22,7 +22,11 @@ def get_time():
     return datetime.datetime.utcnow()
 
 def store_top_genre(top_genre, pos, range):
-    id = db.genre.update_or_insert(name=top_genre)
+    row = db(db.genre.name == top_genre).select().first()
+    if row is None:
+        id = db.genre.insert(name=top_genre)
+    else:
+        id = row.id
     db.user_top_genre.insert(
         genre_id=id,
         user_id=get_user(),
@@ -32,9 +36,13 @@ def store_top_genre(top_genre, pos, range):
     return
 
 def store_top_artist(artist_name, artist_id, pos, range):
-    id = db.artist.update_or_insert(
-        name=artist_name, spotify_artist_id=artist_id
-    )
+    row = db(db.artist.name == artist_name).select().first()
+    if row is None:
+        id = db.artist.insert(
+            name=artist_name, spotify_artist_id=artist_id
+        )
+    else:
+        id = row.id
     db.user_top_artist.insert(
         artist_id=id,
         user_id=get_user(),
@@ -44,11 +52,15 @@ def store_top_artist(artist_name, artist_id, pos, range):
     return
 
 def store_top_album(artist_id, album_name, album_id, pos, range):
-    id = db.album.update_or_insert(
-        artist_id=artist_id,
-        name=album_name,
-        spotify_album_id=album_id
-    )
+    row = db(db.album.name == album_name).select().first()
+    if row is None:
+        id = db.album.insert(
+            artist_id=artist_id,
+            name=album_name,
+            spotify_album_id=album_id
+        )
+    else:
+        id = row.id
     db.user_top_album.insert(
         album_id=id,
         user_id=get_user(),
@@ -58,11 +70,15 @@ def store_top_album(artist_id, album_name, album_id, pos, range):
     return
 
 def store_top_song(album_id, song_name, song_id, pos, range):
-    id = db.song.update_or_insert(
-        album_id=album_id,
-        name=song_name,
-        spotify_song_id=song_id
-    )
+    row = db(db.song.name == song_name).select().first()
+    if row is None:
+        id = db.song.insert(
+            album_id=album_id,
+            name=song_name,
+            spotify_song_id=song_id
+        )
+    else:
+        id = row.id
     db.user_top_song.insert(
         song_id=id,
         user_id=get_user(),
