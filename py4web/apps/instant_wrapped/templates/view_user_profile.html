@@ -1,0 +1,72 @@
+[[extend 'layout.html']]
+
+<style xmlns:v-bind="http://www.w3.org/1999/xhtml">
+    [v-cloak] {
+        display: none;
+    }
+
+    .has-image-centered {
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+
+<div class="section" id="vue-target" v-cloak>
+    <!--Profile Name-->
+    <h1 class="title has-text-centered">
+        {{user_name}}
+    </h1>
+
+    <figure class="image is-128x128 has-image-centered">
+        <!--Insert User's Profile Picture-->
+        <img v-bind:src="user_picture" class="is-rounded">
+    </figure>
+
+    <div class="tile is-ancestor">
+        <div class="tile is-parent">
+            <div class="tile is-child">
+                <p class="title has-text-centered">Bio</p>
+                <p class="subtitle">{{biography}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tile is-ancestor">
+        <div class="tile is-parent is-6">
+            <div class="tile is-child">
+                <p class="title has-text-centered">Playlists</p>
+                <div v-for = "i in top_playlists" >
+                    <p class="subtitle"> <a :href="'/instant_wrapped/' + 'view_playlist/' + i.id" class="button is-rounded is-ghost">{{i.playlist_name}}</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="tile is-parent is-vertical">
+            <div class="tile is-child">
+                <p class="title has-text-centered">Top 5 Songs</p>
+                <div v-for = "i in top_songs" >
+                    <p class="subtitle">{{i.song_name}}</p>
+                </div>
+            </div>
+            <div class="tile is-child">
+                <p class="title has-text-centered">Top 5 Artists</p>
+                <div v-for = "i in top_artists" >
+                    <p class="subtitle">{{i.artist_name}}</p>
+                </div>
+            </div>
+            <div class="tile is-child">
+                <p class="title has-text-centered">Top 5 Genres</p>
+                <div v-for = "i in top_genres" >
+                    <p class="subtitle">{{i.genre_name}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+    let load_profile_url = "[[=XML(load_profile_url)]]";
+</script>
+<script src="js/view_user_profile.js"></script>
+[[end]]
