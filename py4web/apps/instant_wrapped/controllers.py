@@ -308,13 +308,19 @@ def get_profile():
     picture = db.auth_user[uid]['profile_picture']
     bio = db.auth_user[uid]['biography']
 
-    songs = db(db.user_top_song.user_id == uid).select(orderby=db.user_top_song.user_position).as_list()
+    songs = db(
+        (db.user_top_song.user_id == uid) & (db.user_top_song.user_timespan == spotify_ranges[2])
+    ).select(orderby=db.user_top_song.user_position).as_list()
     songs = songs[0:num_songs]
 
-    artists = db(db.user_top_artist.user_id == uid).select(orderby=db.user_top_artist.user_position).as_list()
+    artists = db(
+        (db.user_top_artist.user_id == uid) & (db.user_top_artist.user_timespan == spotify_ranges[2])
+    ).select(orderby=db.user_top_artist.user_position).as_list()
     artists = artists[0:num_artists]
 
-    genres = db(db.user_top_genre.user_id == uid).select(orderby=db.user_top_genre.user_position).as_list()
+    genres = db(
+        (db.user_top_genre.user_id == uid) & (db.user_top_genre.user_timespan == spotify_ranges[2])
+    ).select(orderby=db.user_top_genre.user_position).as_list()
     genres = genres[0:num_genres]
 
     pls = db(db.user_playlist.user_id == uid).select(orderby=db.user_playlist.rate_score).as_list()

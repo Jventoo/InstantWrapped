@@ -27,7 +27,9 @@ def store_top_genre(top_genre, pos, range):
         id = db.genre.insert(name=top_genre)
     else:
         id = row.id
-    db.user_top_genre.insert(
+
+    db.user_top_genre.update_or_insert(
+        (db.user_top_genre.user_position == pos) & (db.user_top_genre.user_timespan == range),
         genre_id=id,
         user_id=get_user(),
         user_position=pos,
@@ -43,7 +45,9 @@ def store_top_artist(artist_name, artist_id, pos, range):
         )
     else:
         id = row.id
-    db.user_top_artist.insert(
+
+    db.user_top_artist.update_or_insert(
+        (db.user_top_artist.user_position == pos) & (db.user_top_artist.user_timespan == range),
         artist_id=id,
         user_id=get_user(),
         user_position=pos,
@@ -61,7 +65,9 @@ def store_top_album(artist_id, album_name, album_id, pos, range):
         )
     else:
         id = row.id
-    db.user_top_album.insert(
+
+    db.user_top_album.update_or_insert(
+        (db.user_top_album.user_position == pos) & (db.user_top_album.user_timespan == range),
         album_id=id,
         user_id=get_user(),
         user_position=pos,
@@ -79,7 +85,9 @@ def store_top_song(album_id, song_name, song_id, pos, range):
         )
     else:
         id = row.id
-    db.user_top_song.insert(
+    
+    db.user_top_song.update_or_insert(
+        (db.user_top_song.user_position == pos) & (db.user_top_song.user_timespan == range),
         song_id=id,
         user_id=get_user(),
         user_position=pos,
