@@ -46,6 +46,7 @@
                     [[=globals().get('user').get('username')]]
                   </a>
                   <div class="navbar-dropdown">
+                    <a class="navbar-item" href="[[=URL('view_user_profile/' + str(globals().get('user').get('id')))]]">View Profile</a>
                     <a class="navbar-item" href="[[=URL('auth/profile')]]">Manage Account</a>
                     <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
                     <!--<a class="navbar-item" href="[[=URL('auth/change_password')]]">Change Password</a></li>-->
