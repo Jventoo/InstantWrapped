@@ -380,7 +380,7 @@ def load_leaderboard():
         pName = playlist["name"]
         row["playlist_name"] = pName
     rows2 = sorted(rows, key=lambda i: i['rate_score'],reverse=True)
-    return dict(rows = rows2)
+    return dict(rows = rows2, current_user=models.get_user())
 
 
 @action('upvote', method='POST')

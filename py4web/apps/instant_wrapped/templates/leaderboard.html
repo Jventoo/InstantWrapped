@@ -7,31 +7,33 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-  <table class="table is-striped is-fullwidth">
-            <tr>
-                <th></th>
-                <th>Score</th>
-                <th>Playlist Name</th>
-                <th>Author</th>
-                <th></th>
-            </tr>
-            <tr v-for="row in rows">
-                <td>
-                    <div v-if="row.upvote_status === 0">
-                        <button @click="upvote(row._idx,1)" class="button">
-                            <i class="fa fa-thumbs-o-up fa-fw"></i>
-                        </button>
-                    </div>
-                    <div v-else>
-                        <button @click="upvote(row._idx,0)" class="button">
-                            <i class="fa fa-thumbs-up fa-fw"></i>
-                        </button>
-                    </div>
-                </td>
-                <td>{{row.current_score}} </td>
-                <td><a :href="'/instant_wrapped/' + 'view_playlist/' + row.id" class="button is-rounded is-ghost">{{row.playlist_name}}</a></td>
-                <td><a :href="'/instant_wrapped/' + 'view_user_profile/' + row.author_id" class="button is-rounded is-ghost">{{row.playlist_author}}</a></td>
-                <td>
+    <h1 class="title has-text-centered">Leaderboard</h1>
+    <table class="table is-striped is-fullwidth has-text-centered">
+        <tr>
+            <th></th>
+            <th>Score</th>
+            <th>Playlist Name</th>
+            <th>Author</th>
+            <th></th>
+        </tr>
+        <tr v-for="row in rows">
+            <td>
+                <div v-if="row.upvote_status === 0">
+                    <button @click="upvote(row._idx,1)" class="button">
+                        <i class="fa fa-thumbs-o-up fa-fw"></i>
+                    </button>
+                </div>
+                <div v-else>
+                    <button @click="upvote(row._idx,0)" class="button">
+                        <i class="fa fa-thumbs-up fa-fw"></i>
+                    </button>
+                </div>
+            </td>
+            <td class="is-vcentered">{{row.current_score}}</td>
+            <td><a :href="'/instant_wrapped/' + 'view_playlist/' + row.id" class="button is-rounded is-ghost">{{row.playlist_name}}</a></td>
+            <td><a :href="'/instant_wrapped/' + 'view_user_profile/' + row.author_id" class="button is-rounded is-ghost">{{row.playlist_author}}</a></td>
+            <td>
+                <div v-if="row.author_id !== current_user">
                     <button type="submit" @click="save_playlist(row.spotify_playlist_id)"
                         class="button is-rounded is-dark is-outlined">
                         <span class="icon">
@@ -39,11 +41,18 @@
                         </span>
                         <span>Save Playlist to Library</span>
                     </button>
-                </td>
-            </tr>
-
-            </button>
-  </table>
+                </div>
+                <div v-else>
+                    <button type="submit" class="button is-rounded is-dark is-outlined" disabled>
+                        <span class="icon">
+                            <i class="fa fa-thumb-tack"></i>
+                        </span>
+                        <span>Save Playlist to Library</span>
+                    </button>
+                </div
+            </td>
+        </tr>
+    </table>
 </div>
 
 [[block page_scripts]]
