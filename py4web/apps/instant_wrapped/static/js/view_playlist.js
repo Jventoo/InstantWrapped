@@ -17,7 +17,7 @@ let init = (app) => {
 
         add_mode: false,
         add_comment_txt: "",
-        add_reply_txt: "",
+
         current_user_email: "",
         current_user_name: "",
         comments: [],
@@ -44,16 +44,29 @@ let init = (app) => {
 
     app.complete = (comments) =>{
         comments.map((comment)=>{
+            comment.reply_mode = false,
+            comment.add_reply_txt = "",
             comment.replies = [];
         })
     }
 
-    app.set_add_status = function (new_status) {
-        app.vue.add_mode = new_status;
+    app.set_add_status = function (comment_idx, new_status) {
+        if (comment_idx === -1){
+            app.vue.add_mode = new_status;
+        }
+        else{ 
+            app.vue.comments[comment_idx].reply_mode = new_status;
+        }
+            
     };
     
-    app.reset_form = function () {
-        app.vue.add_comment_txt = "";
+    app.reset_form = function (comment_idx) {
+        if (comment_idx === -1){
+            app.vue.add_comment_txt = "";
+        }
+        else{ 
+            app.vue.comments[comment_idx].add_reply_txt = "";
+        }
     };
 
 
@@ -72,8 +85,8 @@ let init = (app) => {
                 replies : [],
             });
             app.enumerate(app.vue.comments);
-            app.reset_form();
-            app.set_add_status(false);
+            app.reset_form(-1);
+            app.set_add_status(-1,false);
         });
     };
 
@@ -96,19 +109,19 @@ let init = (app) => {
         axios.post(add_reply_url,
             {
                 comment_id: app.vue.comments[comment_idx].id,
-                reply_txt: app.vue.add_reply_txt,
+                reply_txt: app.vue.comments[comment_idx].add_reply_txt,
             }).then(function (response) {
             app.vue.current_user_name = response.data.current_user_name;
             app.vue.current_user_email = response.data.current_user_email;
             replies.push({
                 id: response.data.id,
-                reply_txt: app.vue.add_reply_txt,
+                reply_txt: app.vue.comments[comment_idx].add_reply_txt,
                 reply_author: response.data.author,
                 user_email: response.data.current_user_email,
             });
             app.enumerate(replies);
-            app.reset_form();
-            app.set_add_status(false);
+            app.reset_form(comment_idx);
+            app.set_add_status(comment_idx,false);
         });
     };
 
