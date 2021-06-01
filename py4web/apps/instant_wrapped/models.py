@@ -177,6 +177,25 @@ db.define_table(
     Field('upvote', 'integer', default=0), # +1 = upvote
 )
 
+db.define_table(
+    'comments',
+    Field('playlist_id', 'reference user_playlist', ondelete ="CASCADE"),
+    Field('comment_author', 'reference auth_user', default=get_user),
+    Field('user_email', default=get_user_email),
+    Field('comment_txt', 'text', requires=IS_NOT_EMPTY()),
+)
+
+#redundant, but I didn't want to deal with parent child references
+db.define_table(
+    'replies',
+    Field('comment_id', 'reference comments', ondelete ="CASCADE"),
+    Field('reply_author', 'reference auth_user', default=get_user),
+    Field('user_email', default=get_user_email),
+    Field('reply_txt', 'text', requires=IS_NOT_EMPTY()),
+)
+
+
+
 # Not sure how best to have review DB entry work for any type
 # of resource (track, album, artist, etc) so I just added a field
 # for Spotify ID and we can look up what type of resource it is at
