@@ -484,7 +484,7 @@ def add_comment(playlist_id):
 def load_comments(playlist_id):
     comments = db(db.comments.playlist_id == playlist_id).select().as_list()
     temp = db(db.auth_user.email == models.get_user_email()).select().first()
-    current_user_name = temp.first_name + " " + temp.last_name if temp is not None else temp.username
+    current_user_name = temp.username
     user_email = models.get_user_email()
     for comment in comments:
         r = db(db.auth_user.email == comment["user_email"]).select().first()
@@ -519,7 +519,7 @@ def load_comments():
     comment_id = request.params.get('comment_id')
     replies = db(db.replies.comment_id == comment_id).select().as_list()
     temp = db(db.auth_user.email == models.get_user_email()).select().first()
-    current_user_name = temp.first_name + " " + temp.last_name if temp is not None else temp.username
+    current_user_name = temp.username
     user_email = models.get_user_email()
     for reply in replies:
         r = db(db.auth_user.email == reply["user_email"]).select().first()
