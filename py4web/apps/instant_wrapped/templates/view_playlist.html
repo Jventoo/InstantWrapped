@@ -39,13 +39,88 @@
             <td>{{rows["authors"][index]}}</td>
         </tr>
     </table>
+
+    <div v-if="add_mode" class="container block">
+        <div class="form">
+          <div class="field">
+            <div class="control">
+              <textarea type="text" v-model="add_comment_txt" class="textarea" placeholder="Enter new post here"></textarea>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <input type="submit" @click="add_comment" value="comment" class="button is-primary">
+              <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
+            </div>
+          </div>
+        </div>
+    </div>
+    <div v-else class="container block">
+        <button @click="set_add_status(true)" class="button is-primary">
+          <i class="fa fa-plus fa-fw"></i>
+        </button>
+    </div>
+
+    <div class="container block is-max-desktop">
+        <article class="message is-success" style="margin-top:25px" v-for="c in comments.slice().reverse()">
+            <div class="message-header">
+                {{c.comment_author}} 
+                <div v-if="current_user_email === c.user_email">
+                    <button @click="delete_comment(c._idx)" class="button is-danger is-inverted">
+                        <i class="fa fa-trash"></i></button>
+                </div>
+            </div>
+            <div class="message-body">
+                <div class="w3-jumbo" style="margin-top:5px;color:#000000;">
+                    {{c.comment_txt}}
+                </div>
+                <br>
+                <div class="message is-danger" v-for="r in c.replies.slice()">
+                    <div class="message-header">
+                        {{r.reply_author}}
+                        <div v-if="current_user_email === r.user_email">
+                            <button @click="delete_reply(c._idx, r._idx)" class="button is-danger is-inverted">
+                                <i class="fa fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="message-body">
+                        <h2 class="w3-jumbo" style="margin-top:5px;color:#000000;">
+                            {{r.reply_txt}}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="container block">
+                <div class="form">
+                  <div class="field">
+                    <div class="control">
+                      <textarea type="text" v-model="add_reply_txt" class="textarea" placeholder="Enter reply here"></textarea>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="control">
+                      <input type="submit" @click="add_reply(c._idx)" value="comment" class="button is-primary">
+                      <input type="submit" @click="reset_form" value="Cancel" class="button is-warning">
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <!--THIS IS WHERE THE ADD REPLY BUTTON GOES-->
+        </article>
+    </div>
 </div>
+
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
     let load_playlist_url = "[[=XML(load_playlist_url)]]";
     let post_playlist_url = "[[=XML(post_playlist_url)]]";
+    let load_comments_url = "[[=XML(load_comments_url)]]";
+    let add_comment_url = "[[=XML(add_comment_url)]]";
+    let delete_comment_url = "[[=XML(delete_comment_url)]]";
+    let load_replies_url = "[[=XML(load_replies_url)]]";
+    let add_reply_url = "[[=XML(add_reply_url)]]";
+    let delete_reply_url = "[[=XML(delete_reply_url)]]";
 </script>
 <script src="js/view_playlist.js"></script>
 [[end]]

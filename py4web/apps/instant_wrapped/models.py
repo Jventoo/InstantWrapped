@@ -140,15 +140,16 @@ db.define_table(
 db.define_table(
     'comments',
     Field('playlist_id', 'reference user_playlist', ondelete ="CASCADE"),
-    Field('author', 'reference auth_user', default=get_user),
+    Field('comment_author', 'reference auth_user', default=get_user),
     Field('user_email', default=get_user_email),
     Field('comment_txt', 'text', requires=IS_NOT_EMPTY()),
 )
 
+#redundant, but I didn't want to deal with parent child references
 db.define_table(
     'replies',
     Field('comment_id', 'reference comments', ondelete ="CASCADE"),
-    Field('author', 'reference auth_user', default=get_user),
+    Field('reply_author', 'reference auth_user', default=get_user),
     Field('user_email', default=get_user_email),
     Field('reply_txt', 'text', requires=IS_NOT_EMPTY()),
 )

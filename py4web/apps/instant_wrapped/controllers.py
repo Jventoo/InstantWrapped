@@ -332,28 +332,77 @@ def view_playlist(playlist_id):
     return dict(
         load_playlist_url=URL('load_playlist', playlist_id, signer=url_signer),
         post_playlist_url=URL('post_playlist', signer=url_signer),
-        add_comment_url=URL('add_comment', signer=url_signer),
-        add_reply_url=URL('add_reply',signer=url_signer),
-        load_comments_url=URL('load_comments',signer=url_signer),
+        add_comment_url=URL('add_comment', playlist_id, signer=url_signer),
+        load_comments_url=URL('load_comments', playlist_id, signer=url_signer),
+        delete_comment_url = URL('delete_comment', signer=url_signer),
+        add_reply_url=URL('add_reply', signer=url_signer),
+        load_replies_url=URL('load_replies', signer=url_signer),
+        delete_reply_url=URL('delete_reply', signer=url_signer),
     )
 
-@action('add_comment', method="POST")
+@action('add_comment/<playlist_id:int>', method="POST")
 @action.uses(db, auth.user)
-def add_comment():
-    r = db(db.auth_user.email == get_user_email()).select().first()
-    id = db.post.insert(
-        post_content=request.json.get('post_content'),
+def add_comment(playlist_id):
+    r = db(db.auth_user.email == models.get_user_email()).select().first()
+    id = db.comments.insert(
+        playlist_id = playlist_id, 
+        comment_txt = request.json.get('comment_txt'),
     )
-    name = r.first_name + " " + r.last_name if r is not None else "Unknown"
-    current_user_email = get_user_email()
+    name = r.username
+    current_user_email = models.get_user_email()
     return dict(id=id, author=name, current_user_email = current_user_email, current_user_name = name)
+
+@action('load_comments/<playlist_id:int>')
+@action.uses(db, auth.user)
+def load_comments(playlist_id):
+    comments = db(db.comments.playlist_id == playlist_id).select().as_list()
+    temp = db(db.auth_user.email == models.get_user_email()).select().first()
+    current_user_name = temp.first_name + " " + temp.last_name if temp is not None else temp.username
+    user_email = models.get_user_email()
+    for comment in comments:
+        r = db(db.auth_user.email == comment["user_email"]).select().first()
+        comment["comment_author"] = r.username
+    return dict(comments=comments, current_user_email = user_email, current_user_name = current_user_name)
+
+@action('delete_comment')
+@action.uses(url_signer.verify(), db)
+def delete_post():
+    id = request.params.get('id')
+    assert id is not None
+    db(db.comments.id == id).delete()
+    return "ok"
+
 
 @action('add_reply', method="POST")
 @action.uses(db, auth.user)
 def add_reply():
-    return dict()
+    r = db(db.auth_user.email == models.get_user_email()).select().first()
+    id = db.replies.insert(
+        comment_id = request.json.get('comment_id'), 
+        reply_txt=request.json.get('reply_txt'), 
+    )
+    name = r.username
+    current_user_email = models.get_user_email()
+    return dict(id=id, author=name, current_user_email = current_user_email, current_user_name = name)
 
-@action('load_comments')
+
+@action('load_replies')
 @action.uses(db, auth.user)
 def load_comments():
-    return dict()
+    comment_id = request.params.get('comment_id')
+    replies = db(db.replies.comment_id == comment_id).select().as_list()
+    temp = db(db.auth_user.email == models.get_user_email()).select().first()
+    current_user_name = temp.first_name + " " + temp.last_name if temp is not None else temp.username
+    user_email = models.get_user_email()
+    for reply in replies:
+        r = db(db.auth_user.email == reply["user_email"]).select().first()
+        reply["reply_author"] = r.username
+    return dict(replies=replies, current_user_email = user_email, current_user_name = current_user_name)
+
+@action('delete_reply')
+@action.uses(url_signer.verify(), db)
+def delete_post():
+    id = request.params.get('id')
+    assert id is not None
+    db(db.replies.id == id).delete()
+    return "ok"

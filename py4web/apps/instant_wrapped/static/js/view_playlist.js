@@ -17,6 +17,7 @@ let init = (app) => {
 
         add_mode: false,
         add_comment_txt: "",
+        add_reply_txt: "",
         current_user_email: "",
         current_user_name: "",
         comments: [],
@@ -32,24 +33,20 @@ let init = (app) => {
             });
     };
 
-    app.add_comment = function () {
-        axios.post(add_comment_url,
-            {
-                post_content: app.vue.add_comment_txt,
-            }).then(function (response) {
-            app.vue.current_user_name = response.data.current_user_name;
-            app.vue.current_user_email = response.data.current_user_email;
-            app.vue.rows.push({
-                id: response.data.id,
-                post_content: app.vue.add_comment_txt,
-                post_author: response.data.author,
-                user_email: response.data.current_user_email,
-            });
-            app.enumerate(app.vue.rows);
-            app.reset_form();
-            app.set_add_status(false);
+    app.enumerate = (a) => {
+        // This adds an _idx field to each element of the array.
+        let k = 0;
+        a.map((e) => {
+            e._idx = k++;
         });
+        return a;
     };
+
+    app.complete = (comments) =>{
+        comments.map((comment)=>{
+            comment.replies = [];
+        })
+    }
 
     app.set_add_status = function (new_status) {
         app.vue.add_mode = new_status;
@@ -60,11 +57,82 @@ let init = (app) => {
     };
 
 
+    app.add_comment = function () {
+        axios.post(add_comment_url,
+            {
+                comment_txt: app.vue.add_comment_txt,
+            }).then(function (response) {
+            app.vue.current_user_name = response.data.current_user_name;
+            app.vue.current_user_email = response.data.current_user_email;
+            app.vue.comments.push({
+                id: response.data.id,
+                comment_txt: app.vue.add_comment_txt,
+                comment_author: response.data.author,
+                user_email: response.data.current_user_email,
+                replies : [],
+            });
+            app.enumerate(app.vue.comments);
+            app.reset_form();
+            app.set_add_status(false);
+        });
+    };
+
+
+    app.delete_comment = function (row_idx) {
+        let id = app.vue.comments[row_idx].id;
+        axios.get(delete_comment_url, {params: {id: id}}).then(function (response) {
+            for (let i = 0; i < app.vue.comments.length; i++) {
+                if (app.vue.comments[i].id === id) {
+                    app.vue.comments.splice(i, 1);
+                    app.enumerate(app.vue.comments);
+                    break;
+                }
+            }
+        });
+    };
+
+    app.add_reply = function (comment_idx) {
+        let replies = app.vue.comments[comment_idx].replies;
+        axios.post(add_reply_url,
+            {
+                comment_id: app.vue.comments[comment_idx].id,
+                reply_txt: app.vue.add_reply_txt,
+            }).then(function (response) {
+            app.vue.current_user_name = response.data.current_user_name;
+            app.vue.current_user_email = response.data.current_user_email;
+            replies.push({
+                id: response.data.id,
+                reply_txt: app.vue.add_reply_txt,
+                reply_author: response.data.author,
+                user_email: response.data.current_user_email,
+            });
+            app.enumerate(replies);
+            app.reset_form();
+            app.set_add_status(false);
+        });
+    };
+
+    app.delete_reply = function (comment_idx, row_idx) {
+        let id = app.vue.comments[comment_idx].replies[row_idx].id;
+        axios.get(delete_reply_url, {params: {id: id}}).then(function (response) {
+            for (let i = 0; i < app.vue.comments[comment_idx].replies.length; i++) {
+                if (app.vue.comments[comment_idx].replies[i].id === id) {
+                    app.vue.comments[comment_idx].replies.splice(i, 1);
+                    app.enumerate(app.vue.comments[comment_idx].replies);
+                    break;
+                }
+            }
+        });
+    };
+
     app.methods = {
         change_post_status: app.change_post_status,
-        add_comment: app.add_comment,
         set_add_status: app.set_add_status,
         reset_form: app.reset_form,
+        add_comment: app.add_comment,
+        delete_comment: app.delete_comment,
+        add_reply: app.add_reply,
+        delete_reply: app.delete_reply,
     };
 
     app.vue = new Vue({
@@ -83,7 +151,23 @@ let init = (app) => {
             app.vue.current_user = response.data.current_user;
             app.vue.currently_displayed = response.data.currently_displayed;
             app.vue.pid = response.data.pid;
+            });
+        axios.get(load_comments_url).then(function(response){
+            let comments = response.data.comments;
+            app.vue.current_user_email = response.data.current_user_email;
+            app.vue.current_user_name = response.data.current_user_name;
+            app.complete(comments);
+            app.vue.comments = app.enumerate(comments);
             })
+            .then(()=>{
+                for (let comment of app.vue.comments){
+                    axios.get(load_replies_url, {params: {"comment_id": comment.id}})
+                        .then((response) =>{
+                            comment.replies = response.data.replies;
+                            comment.replies = app.enumerate(comment.replies);
+                        });
+                }
+            })       
     };
 
 
