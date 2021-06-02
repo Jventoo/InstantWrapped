@@ -470,26 +470,26 @@ def view_playlist(playlist_id):
 @action('add_comment/<playlist_id:int>', method="POST")
 @action.uses(db, auth.user)
 def add_comment(playlist_id):
-    r = db(db.auth_user.email == models.get_user_email()).select().first()
+    r = db(db.auth_user.id == models.get_user()).select().first()
     id = db.comments.insert(
         playlist_id = playlist_id, 
         comment_txt = request.json.get('comment_txt'),
     )
     name = r.username
-    current_user_email = models.get_user_email()
-    return dict(id=id, author=name, current_user_email = current_user_email, current_user_name = name)
+    current_user_id = models.get_user()
+    return dict(id=id, author=name, current_user_id = current_user_id, current_user_name = name)
 
 @action('load_comments/<playlist_id:int>')
 @action.uses(db, auth.user)
 def load_comments(playlist_id):
     comments = db(db.comments.playlist_id == playlist_id).select().as_list()
-    temp = db(db.auth_user.email == models.get_user_email()).select().first()
+    temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username
-    user_email = models.get_user_email()
+    user_id = models.get_user()
     for comment in comments:
-        r = db(db.auth_user.email == comment["user_email"]).select().first()
+        r = db(db.auth_user.id == comment["user_id"]).select().first()
         comment["comment_author"] = r.username
-    return dict(comments=comments, current_user_email = user_email, current_user_name = current_user_name)
+    return dict(comments=comments, current_user_id = user_id, current_user_name = current_user_name)
 
 @action('delete_comment')
 @action.uses(url_signer.verify(), db)
@@ -503,14 +503,14 @@ def delete_post():
 @action('add_reply', method="POST")
 @action.uses(db, auth.user)
 def add_reply():
-    r = db(db.auth_user.email == models.get_user_email()).select().first()
+    r = db(db.auth_user.id == models.get_user()).select().first()
     id = db.replies.insert(
         comment_id = request.json.get('comment_id'), 
         reply_txt=request.json.get('reply_txt'), 
     )
     name = r.username
-    current_user_email = models.get_user_email()
-    return dict(id=id, author=name, current_user_email = current_user_email, current_user_name = name)
+    current_user_id = models.get_user()
+    return dict(id=id, author=name, current_user_id = current_user_id, current_user_name = name)
 
 
 @action('load_replies')
@@ -518,13 +518,13 @@ def add_reply():
 def load_comments():
     comment_id = request.params.get('comment_id')
     replies = db(db.replies.comment_id == comment_id).select().as_list()
-    temp = db(db.auth_user.email == models.get_user_email()).select().first()
+    temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username
-    user_email = models.get_user_email()
+    user_id = models.get_user()
     for reply in replies:
-        r = db(db.auth_user.email == reply["user_email"]).select().first()
+        r = db(db.auth_user.id == reply["user_id"]).select().first()
         reply["reply_author"] = r.username
-    return dict(replies=replies, current_user_email = user_email, current_user_name = current_user_name)
+    return dict(replies=replies, current_user_id = user_id, current_user_name = current_user_name)
 
 @action('delete_reply')
 @action.uses(url_signer.verify(), db)

@@ -181,7 +181,7 @@ db.define_table(
     'comments',
     Field('playlist_id', 'reference user_playlist', ondelete ="CASCADE"),
     Field('comment_author', 'reference auth_user', default=get_user),
-    Field('user_email', default=get_user_email),
+    Field('user_id', default=get_user),
     Field('comment_txt', 'text', requires=IS_NOT_EMPTY()),
 )
 
@@ -190,7 +190,7 @@ db.define_table(
     'replies',
     Field('comment_id', 'reference comments', ondelete ="CASCADE"),
     Field('reply_author', 'reference auth_user', default=get_user),
-    Field('user_email', default=get_user_email),
+    Field('user_id', default=get_user),
     Field('reply_txt', 'text', requires=IS_NOT_EMPTY()),
 )
 
