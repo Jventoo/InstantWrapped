@@ -354,13 +354,17 @@ def get_profile(user_id):
     pls = db(db.user_playlist.user_id == uid).select(orderby=db.user_playlist.rate_score).as_list()
     sp = get_sp()
     for pl in pls:
-        playlist = sp.playlist(pl["spotify_playlist_id"])
-        pName = playlist["name"]
-        pl["playlist_name"] = pName
+        try:
+            playlist = sp.playlist(pl["spotify_playlist_id"])
+            pName = playlist["name"]
+            pl["playlist_name"] = pName
+        except:
+            continue
 
     return dict(
-        user_name=name, user_picture=picture, biography=bio,
-        top_songs=songs, top_artists=artists, top_genres=genres, playlists=pls
+        user_id=uid, current_user=models.get_user(), user_name=name,
+        user_picture=picture, biography=bio, top_songs=songs,
+        top_artists=artists, top_genres=genres, playlists=pls
     )
 
 @action('find_matches', method='GET')
@@ -373,6 +377,7 @@ def get_matches():
 def dashboard(user_id):
     return dict(
         load_profile_url=URL('load_profile', user_id, signer=url_signer),
+        load_stats_url=URL('load_stats', signer=url_signer),
     )
 
 @action('load_leaderboard')
@@ -451,6 +456,8 @@ def load_playlist(playlist_id):
 
     temp2 = sp.playlist(temp["spotify_playlist_id"])
     playlist_name = temp2["name"]
+    pl_pic = temp2["images"][1]["url"]
+    pl_link = temp2["external_urls"]["spotify"]
     track_data = temp2["tracks"]["items"]
     for i in range(len(track_data)):
         rows["tracks"].append(track_data[i]["track"]["name"])
@@ -461,7 +468,7 @@ def load_playlist(playlist_id):
         name = name[:-2:]
         rows["authors"].append(name)
     return dict(
-        rows = rows, current_user = current_user, 
+        rows = rows, current_user = current_user, playlist_picture = pl_pic, playlist_link = pl_link,
         playlist_owner = playlist_owner, playlist_owner_name = playlist_owner_name, 
         currently_displayed = currently_displayed, pid = pid, playlist_name=playlist_name
         )

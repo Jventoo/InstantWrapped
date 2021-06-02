@@ -10,8 +10,13 @@
     <nav class="level">
         <div class="level-left">
             <div class="level-item">
+                <figure class="image is-128x128 has-image-centered">
+                    <img v-bind:src="playlist_picture">
+                </figure>
+            </div>
+            <div class="level-item pl-3">
                 <div>
-                    <p class="title">{{playlist_name}}</p>
+                    <a :href="playlist_link" class="title">{{playlist_name}}</a>
                     <p class="subtitle mt-1">Created by 
                         <a :href="'/instant_wrapped/' + 'view_user_profile/' + playlist_owner"> {{playlist_owner_name}} </a>
                     </p> 

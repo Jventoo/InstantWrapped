@@ -1256,4 +1256,4 @@ class DefaultAuthForms:
         if not form:
             redirect(self.auth.next.get(action) or URL("index"))
         elif form.accepted:
-            redirect(URL("dashboard"))
+            redirect(URL("view_user_profile", user.id))

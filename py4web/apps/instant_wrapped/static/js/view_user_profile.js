@@ -9,6 +9,10 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
+        profile_loading: true,
+        stats_loading: false,
+        user_id: -1,
+        current_user: -1,
         user_name: "",
         top_songs: [],
         top_artists: [],
@@ -37,7 +41,22 @@ let init = (app) => {
             app.vue.top_playlists = response.data.playlists;
             app.vue.user_picture = response.data.user_picture;
             app.vue.biography = response.data.biography;
-        })
+            app.vue.profile_loading = false;
+
+            if (app.vue.top_songs.length == 0 || app.vue.top_artists.length == 0 ||  app.vue.top_genres.length == 0 )
+            {
+                app.vue.stats_loading = true;
+                axios.get(load_stats_url, {params: {time_range: 2}}).then(function (response) {
+                    app.vue.rows = response.data.rows;
+                    axios.get(load_profile_url).then(function (response) {
+                        app.vue.top_songs = response.data.top_songs;
+                        app.vue.top_artists = response.data.top_artists;
+                        app.vue.top_genres = response.data.top_genres;
+                        app.vue.stats_loading = false;
+                    });
+                });
+            }
+        });
     };
 
 

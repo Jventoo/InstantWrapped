@@ -11,6 +11,8 @@ let init = (app) => {
     app.data = {
         rows: [],
         playlist_owner: -20,
+        playlist_picture: "",
+        playlist_link: "",
         playlist_owner_name: "",
         current_user: -10,
         currently_displayed: false,
@@ -163,6 +165,8 @@ let init = (app) => {
         axios.get(load_playlist_url).then(function (response) {
             let rows = response.data.rows;
             app.vue.rows = rows;
+            app.vue.playlist_picture = response.data.playlist_picture;
+            app.vue.playlist_link = response.data.playlist_link;
             app.vue.playlist_owner = response.data.playlist_owner;
             app.vue.playlist_owner_name = response.data.playlist_owner_name;
             app.vue.current_user = response.data.current_user;

@@ -12,80 +12,92 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-    <!--Profile Name-->
-    <h1 class="title has-text-centered">
-        {{user_name}}
-    </h1>
-
-    <figure class="image is-128x128 has-image-centered">
-        <!--Insert User's Profile Picture-->
-        <img v-bind:src="user_picture" class="is-rounded">
-    </figure>
-
-    <div class="tile is-ancestor">
-        <div class="tile is-parent">
-            <div class="tile is-child">
-                <p class="title has-text-centered">Bio</p>
-                <div v-if="biography">
-                    <p class="subtitle has-text-centered">{{biography}}</p>
+    <div v-if="!profile_loading" class="columns is-mobile">
+        <div class="column is-three-fifths">
+            <div class="columns is-mobile">
+                <div class="column is-one-third">
+                    <figure class="image is-128x128 has-image-centered">
+                        <!--Insert User's Profile Picture-->
+                        <img v-bind:src="user_picture" class="is-rounded">
+                    </figure>
                 </div>
-                <div v-else>
-                    <p class="subtitle has-text-centered">Write a biography in Account Management and it will show up here!</p>
+                <div class="column is-one-third">
+                    <!--Profile Name-->
+                    <h1 class="title has-text-centered">
+                        {{user_name}}
+                    </h1>
+                    <div class="tile is-ancestor">
+                        <div class="tile is-parent">
+                            <div class="tile is-child">
+                                <div v-if="biography">
+                                    <p class="subtitle has-text-centered">{{biography}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tile is-ancestor">
+                <div class="tile is-parent is-vertical">
+                    <div class="tile is-child">
+                        <p class="title">Playlists</p>
+                        <div v-if="top_playlists.length">
+                            <div v-for="i in top_playlists">
+                                <p class="subtitle"><a :href="'/instant_wrapped/' + 'view_playlist/' + i.id"
+                                                    class="button is-rounded is-ghost">{{i.playlist_name}}</a></p>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <p class="subtitle">When you save a playlist, they will show up here!</p>
+                        </div>
+                    </div>
+                    <div class="tile is-child">
+                        <p class="title">Comments</p>
+                        <p class="subtitle">Comments show up here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="tile is-parent is-vertical">
+                <div class="tile is-child">
+                    <p class="title has-text-centered">Top 5 Songs</p>
+                    <div v-if="top_songs.length">
+                        <div v-for="i in top_songs">
+                            <p class="subtitle">{{i.song_name}}</p>
+                        </div>
+                    </div>
+                    <div v-else-if="stats_loading" class="section">
+                        <progress class="progress is-medium is-success" max="100"></progress>
+                    </div>
+                </div>
+                <div class="tile is-child">
+                    <p class="title has-text-centered">Top 5 Artists</p>
+                    <div v-if="top_artists.length">
+                        <div v-for="i in top_artists">
+                            <p class="subtitle">{{i.artist_name}}</p>
+                        </div>
+                    </div>
+                    <div v-else-if="stats_loading" class="section">
+                        <progress class="progress is-medium is-success" max="100"></progress>
+                    </div>
+                </div>
+                <div class="tile is-child">
+                    <p class="title has-text-centered">Top 5 Genres</p>
+                    <div v-if="top_genres.length">
+                        <div v-for="i in top_genres">
+                            <p class="subtitle">{{i.genre_name}}</p>
+                        </div>
+                    </div>
+                    <div v-else-if="stats_loading" class="section">
+                        <progress class="progress is-medium is-success" max="100"></progress>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="tile is-ancestor">
-        <div class="tile is-parent is-6">
-            <div class="tile is-child">
-                <p class="title has-text-centered">Playlists</p>
-                <div v-if="top_playlists.length">
-                    <div v-for="i in top_playlists">
-                        <p class="subtitle"><a :href="'/instant_wrapped/' + 'view_playlist/' + i.id"
-                                               class="button is-rounded is-ghost">{{i.playlist_name}}</a></p>
-                    </div>
-                </div>
-                <div v-else>
-                    <p class="subtitle has-text-centered">When you save a playlist, they will show up here!</p>
-                </div>
-            </div>
-        </div>
-        <div class="tile is-parent is-vertical">
-            <div class="tile is-child">
-                <p class="title has-text-centered">Top 5 Songs</p>
-                <div v-if="top_songs.length">
-                    <div v-for="i in top_songs">
-                        <p class="subtitle">{{i.song_name}}</p>
-                    </div>
-                </div>
-                <div v-else>
-                    <p class="subtitle has-text-centered">Please visit the dashboard and view your long term statistics to populate this table!</p>
-                </div>
-            </div>
-            <div class="tile is-child">
-                <p class="title has-text-centered">Top 5 Artists</p>
-                <div v-if="top_artists.length">
-                    <div v-for="i in top_artists">
-                        <p class="subtitle">{{i.artist_name}}</p>
-                    </div>
-                </div>
-                <div v-else>
-                    <p class="subtitle has-text-centered">Please visit the dashboard and view your long term statistics to populate this table!</p>
-                </div>
-            </div>
-            <div class="tile is-child">
-                <p class="title has-text-centered">Top 5 Genres</p>
-                <div v-if="top_genres.length">
-                    <div v-for="i in top_genres">
-                        <p class="subtitle">{{i.genre_name}}</p>
-                    </div>
-                </div>
-                <div v-else>
-                    <p class="subtitle has-text-centered">Please visit the dashboard and view your long term statistics to populate this table!</p>
-                </div>
-            </div>
-        </div>
+    <div v-else class="section">
+        <progress class="progress is-medium is-success" max="100"></progress>
     </div>
 </div>
 
@@ -93,6 +105,7 @@
 <!-- Loads the index-specific js for Vue -->
 <script>
     let load_profile_url = "[[=XML(load_profile_url)]]";
+    let load_stats_url = "[[=XML(load_stats_url)]]";
 </script>
 <script src="js/view_user_profile.js"></script>
 [[end]]
