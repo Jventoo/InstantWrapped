@@ -11,9 +11,11 @@ let init = (app) => {
     app.data = {
         rows: [],
         playlist_owner: -20,
+        playlist_owner_name: "",
         current_user: -10,
         currently_displayed: false,
         pid: 0,
+        playlist_name: "",
 
         add_mode: false,
         add_comment_txt: "",
@@ -56,7 +58,10 @@ let init = (app) => {
         else{ 
             app.vue.comments[comment_idx].reply_mode = new_status;
         }
-            
+        
+        if (new_status == false) {
+            app.reset_form(comment_idx);
+        }
     };
     
     app.reset_form = function (comment_idx) {
@@ -161,9 +166,11 @@ let init = (app) => {
             let rows = response.data.rows;
             app.vue.rows = rows;
             app.vue.playlist_owner = response.data.playlist_owner;
+            app.vue.playlist_owner_name = response.data.playlist_owner_name;
             app.vue.current_user = response.data.current_user;
             app.vue.currently_displayed = response.data.currently_displayed;
             app.vue.pid = response.data.pid;
+            app.vue.playlist_name = response.data.playlist_name;
             });
         axios.get(load_comments_url).then(function(response){
             let comments = response.data.comments;

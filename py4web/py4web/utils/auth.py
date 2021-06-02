@@ -73,7 +73,7 @@ class AuthEnforcer(Fixture):
         if request.query_string:
             redirect_next = redirect_next + "?{}".format(request.query_string)
         self.auth.flash.set(message)
-        redirect("auth/plugin/oauth2spotify/login"
+        redirect(URL("auth/plugin/oauth2spotify/login")
             # URL(
             #     self.auth.route,
             #     page,

@@ -436,6 +436,7 @@ def load_playlist(playlist_id):
     current_user = models.get_user()
     temp = db(db.user_playlist.id == playlist_id).select().first()
     playlist_owner = temp["user_id"]
+    playlist_owner_name = db(db.auth_user.id == playlist_owner).select().first().username
     currently_displayed = ast.literal_eval((temp["leaderboard_display"]))
     pid = temp["spotify_playlist_id"]
     rows = {
@@ -443,8 +444,9 @@ def load_playlist(playlist_id):
         "authors": [],
     }
 
-    temp2 = sp.playlist_items(temp["spotify_playlist_id"])
-    track_data = temp2["items"]
+    temp2 = sp.playlist(temp["spotify_playlist_id"])
+    playlist_name = temp2["name"]
+    track_data = temp2["tracks"]["items"]
     for i in range(len(track_data)):
         rows["tracks"].append(track_data[i]["track"]["name"])
         artist_data = track_data[i]["track"]["artists"]
@@ -453,7 +455,11 @@ def load_playlist(playlist_id):
             name += artist_data[j]["name"] + ", "
         name = name[:-2:]
         rows["authors"].append(name)
-    return dict(rows = rows, current_user = current_user, playlist_owner = playlist_owner, currently_displayed = currently_displayed, pid = pid)
+    return dict(
+        rows = rows, current_user = current_user, 
+        playlist_owner = playlist_owner, playlist_owner_name = playlist_owner_name, 
+        currently_displayed = currently_displayed, pid = pid, playlist_name=playlist_name
+        )
 
 @action('view_playlist/<playlist_id:int>')
 @action.uses(db, auth.user, 'view_playlist.html')

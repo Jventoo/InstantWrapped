@@ -6,28 +6,41 @@
     }
 </style>
 
-<div class="section" id="vue-target" v-cloak>
-    <div v-if="playlist_owner === current_user">
-        <div v-if="currently_displayed">
-            <button type="submit" @click="change_post_status(false)"
-                    class="button is-success is-rounded is-outlined is-medium">
-                <span class="icon">
-                    <i class="fa fa-minus"></i>
-                </span>
-                <span>Remove Playlist from Leaderboard</span>
-            </button>
+<div class="section mx-6" id="vue-target" v-cloak>
+    <nav class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <div>
+                    <p class="title">{{playlist_name}}</p>
+                    <p class="subtitle mt-1">Created by {{playlist_owner_name}}</p>
+                </div>
+            </div>
+            <div class="level-item">
+            </div>
         </div>
-        <div v-else>
-            <button type="submit" @click="change_post_status(true)"
-                    class="button is-success is-rounded is-outlined is-medium">
-                <span class="icon">
-                    <i class="fa fa-plus"></i>
-                </span>
-                <span>Post Playlist to Leaderboard</span>
-            </button>
+        <div class="level-right">
+            <div class="level-item" v-if="playlist_owner === current_user">
+                <div v-if="currently_displayed">
+                    <button type="submit" @click="change_post_status(false)"
+                            class="button is-success is-rounded is-outlined is-medium">
+                        <span class="icon">
+                            <i class="fa fa-minus"></i>
+                        </span>
+                        <span>Unpost from Leaderboard</span>
+                    </button>
+                </div>
+                <div v-else>
+                    <button type="submit" @click="change_post_status(true)"
+                            class="button is-success is-rounded is-outlined is-medium">
+                        <span class="icon">
+                            <i class="fa fa-plus"></i>
+                        </span>
+                        <span>Post to Leaderboard</span>
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
-    <br>
+    </nav>
     <table class="table is-striped is-fullwidth">
         <tr>
             <th>#</th>
@@ -40,7 +53,7 @@
             <td>{{rows["authors"][index]}}</td>
         </tr>
     </table>
-    <h1 class="title is-max-desktop">Comments</h1>
+    <h1 class="subtitle is-max-desktop">Comments</h1>
     <div v-if="add_mode" class="container block">
         <div class="form">
           <div class="field">
