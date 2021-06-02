@@ -493,8 +493,8 @@ def load_comments(playlist_id):
     temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username
     for comment in comments:
-        r = db(db.auth_user.id == comment["user_id"]).select().first()
-        comment["comment_author"] = r.username
+        r = db(db.auth_user.id == comment["comment_author"]).select().first()
+        comment["author_name"] = r.username
     return dict(comments=comments, current_user_name = current_user_name)
 
 @action('delete_comment')
@@ -526,8 +526,8 @@ def load_comments():
     temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username
     for reply in replies:
-        r = db(db.auth_user.id == reply["user_id"]).select().first()
-        reply["reply_author"] = r.username
+        r = db(db.auth_user.id == reply["reply_author"]).select().first()
+        reply["author_name"] = r.username
     return dict(replies=replies, current_user_name = current_user_name)
 
 @action('delete_reply')

@@ -83,8 +83,7 @@ let init = (app) => {
             app.vue.comments.push({
                 id: response.data.id,
                 comment_txt: app.vue.add_comment_txt,
-                comment_author: response.data.author,
-                user_id: app.vue.current_user,
+                author_name: response.data.author,
                 replies : [],
                 reply_mode : false,
                 add_reply_txt : "",
@@ -121,8 +120,7 @@ let init = (app) => {
             replies.push({
                 id: response.data.id,
                 reply_txt: app.vue.comments[comment_idx].add_reply_txt,
-                reply_author: response.data.author,
-                user_id: app.vue.current_user,
+                author_name: response.data.author,
             });
             app.enumerate(replies);
             app.reset_form(comment_idx);

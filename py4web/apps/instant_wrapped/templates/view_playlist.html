@@ -12,7 +12,9 @@
             <div class="level-item">
                 <div>
                     <p class="title">{{playlist_name}}</p>
-                    <p class="subtitle mt-1">Created by {{playlist_owner_name}}</p>
+                    <p class="subtitle mt-1">Created by 
+                        <a :href="'/instant_wrapped/' + 'view_user_profile/' + playlist_owner"> {{playlist_owner_name}} </a>
+                    </p> 
                 </div>
             </div>
             <div class="level-item">
@@ -78,8 +80,8 @@
     <div class="container block is-max-desktop">
         <article class="message is-success" v-for="c in comments.slice().reverse()">
             <div class="message-header">
-                {{c.comment_author}} 
-                <div v-if="current_user == c.user_id">
+                <a :href="'/instant_wrapped/' + 'view_user_profile/' + c.comment_author"> {{c.author_name}} </a>
+                <div v-if="current_user == c.comment_author">
                     <button @click="delete_comment(c._idx)" class="button is-danger is-inverted">
                         <i class="fa fa-trash"></i></button>
                 </div>
@@ -91,8 +93,8 @@
                 <br>
                 <div class="message is-danger" v-for="r in c.replies.slice()">
                     <div class="message-header">
-                        {{r.reply_author}}
-                        <div v-if="current_user == r.user_id">
+                        <a :href="'/instant_wrapped/' + 'view_user_profile/' + r.reply_author"> {{r.author_name}} </a>
+                        <div v-if="current_user == r.reply_author">
                             <button @click="delete_reply(c._idx, r._idx)" class="button is-danger is-inverted">
                                 <i class="fa fa-trash"></i></button>
                         </div>
