@@ -275,7 +275,12 @@ def load_stats():
         "artist_rankings": [],
     }
     for a in range(len(track_data)):
-        rows["top_tracks"].append(track_data[a]["name"])
+        track_artist_data = track_data[a]["artists"]
+        name = ""
+        for j in range(len(track_artist_data)):
+            name += track_artist_data[j]["name"] + ", "
+        name = name[:-2:]
+        rows["top_tracks"].append((track_data[a]["name"], name))
         rows["track_rankings"].append(a)
     for b in range(len(artist_data)):
         rows["top_artists"].append(artist_data[b]["name"])

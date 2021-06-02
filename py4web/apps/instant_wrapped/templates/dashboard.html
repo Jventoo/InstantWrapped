@@ -54,7 +54,6 @@
 
 
     <div v-if="stats_loaded && time_range === 0" class="container block">
-        <div class="title">You Selected: Short Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
@@ -64,7 +63,6 @@
     </div>
 
     <div v-if="stats_loaded && time_range === 1" class="container block">
-        <div class="title">You Selected: Medium Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
@@ -74,7 +72,6 @@
     </div>
 
     <div v-if="stats_loaded && time_range === 2" class="container block">
-        <div class="title">You Selected: Long Term Data!</div>
         <select v-model="desired_data">
             <option disabled value="">Please select one</option>
             <option>Top Songs</option>
@@ -84,15 +81,18 @@
     </div>
 
     <div v-if="stats_loaded && desired_data === 'Top Songs'" class="section">
+        <!-- Display time header prior to top songs/artists in same title line. Change dropdown box to switcher arrow button.-->
         <h1 class="title">Your Top Songs </h1>
         <table class="table is-striped is-fullwidth">
             <tr>
                 <th>Rank</th>
                 <th>Song</th>
+                <th>Artist(s)</th>
             </tr>
             <tr v-for="i in rows['track_rankings']">
                 <td>{{i+1}}</td>
-                <td>{{rows["top_tracks"][i]}}</td>
+                <td>{{rows["top_tracks"][i][0]}}</td>
+                <td>{{rows["top_tracks"][i][1]}}</td>
             </tr>
         </table>
         <div v-if="!playlist_saved && save_mode === false">
