@@ -10,6 +10,7 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         rows: [],
+        leaderboard_loading: true,
         current_user: -1,
     };
 
@@ -85,6 +86,7 @@ let init = (app) => {
                         .then((response) => {
                             row.upvote_status = response.data.upvote_status;
                             row.current_score = response.data.current_score;
+                            app.vue.leaderboard_loading = false;
                         });
                 }
             });
