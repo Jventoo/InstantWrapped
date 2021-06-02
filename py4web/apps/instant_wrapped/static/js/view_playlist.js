@@ -18,7 +18,6 @@ let init = (app) => {
         add_mode: false,
         add_comment_txt: "",
 
-        current_user_id: "",
         current_user_name: "",
         comments: [],
     };
@@ -76,12 +75,11 @@ let init = (app) => {
                 comment_txt: app.vue.add_comment_txt,
             }).then(function (response) {
             app.vue.current_user_name = response.data.current_user_name;
-            app.vue.current_user_id = response.data.current_user_id;
             app.vue.comments.push({
                 id: response.data.id,
                 comment_txt: app.vue.add_comment_txt,
                 comment_author: response.data.author,
-                user_id: response.data.current_user_id,
+                user_id: app.vue.current_user,
                 replies : [],
                 reply_mode : false,
                 add_reply_txt : "",
@@ -115,12 +113,11 @@ let init = (app) => {
                 reply_txt: app.vue.comments[comment_idx].add_reply_txt,
             }).then(function (response) {
             app.vue.current_user_name = response.data.current_user_name;
-            app.vue.current_user_id = response.data.current_user_id;
             replies.push({
                 id: response.data.id,
                 reply_txt: app.vue.comments[comment_idx].add_reply_txt,
                 reply_author: response.data.author,
-                user_id: response.data.current_user_id,
+                user_id: app.vue.current_user,
             });
             app.enumerate(replies);
             app.reset_form(comment_idx);
@@ -170,7 +167,6 @@ let init = (app) => {
             });
         axios.get(load_comments_url).then(function(response){
             let comments = response.data.comments;
-            app.vue.current_user_id = response.data.current_user_id;
             app.vue.current_user_name = response.data.current_user_name;
             app.complete(comments);
             app.vue.comments = app.enumerate(comments);

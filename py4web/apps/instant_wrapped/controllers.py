@@ -120,6 +120,7 @@ def get_statistics(
     for artist_item in top_artists['items']:
         genres = artist_item['genres']
         for genre in genres:
+            genre = genre.title()
             if genre in genre_frequency:
                 genre_frequency[genre] += 1
             else:
@@ -130,6 +131,7 @@ def get_statistics(
         # Only grab main artist off song, all artists takes too long
         genres = sp.artist(track_item['artists'][0]['id'])['genres']
         for genre in genres:
+            genre = genre.title()
             if genre in genre_frequency:
                 genre_frequency[genre] += 1
             else:
@@ -476,8 +478,7 @@ def add_comment(playlist_id):
         comment_txt = request.json.get('comment_txt'),
     )
     name = r.username
-    current_user_id = models.get_user()
-    return dict(id=id, author=name, current_user_id = current_user_id, current_user_name = name)
+    return dict(id=id, author=name, current_user_name = name)
 
 @action('load_comments/<playlist_id:int>')
 @action.uses(db, auth.user)
@@ -485,11 +486,10 @@ def load_comments(playlist_id):
     comments = db(db.comments.playlist_id == playlist_id).select().as_list()
     temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username
-    user_id = models.get_user()
     for comment in comments:
         r = db(db.auth_user.id == comment["user_id"]).select().first()
         comment["comment_author"] = r.username
-    return dict(comments=comments, current_user_id = user_id, current_user_name = current_user_name)
+    return dict(comments=comments, current_user_name = current_user_name)
 
 @action('delete_comment')
 @action.uses(url_signer.verify(), db)
@@ -509,8 +509,7 @@ def add_reply():
         reply_txt=request.json.get('reply_txt'), 
     )
     name = r.username
-    current_user_id = models.get_user()
-    return dict(id=id, author=name, current_user_id = current_user_id, current_user_name = name)
+    return dict(id=id, author=name, current_user_name = name)
 
 
 @action('load_replies')
@@ -520,11 +519,10 @@ def load_comments():
     replies = db(db.replies.comment_id == comment_id).select().as_list()
     temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username
-    user_id = models.get_user()
     for reply in replies:
         r = db(db.auth_user.id == reply["user_id"]).select().first()
         reply["reply_author"] = r.username
-    return dict(replies=replies, current_user_id = user_id, current_user_name = current_user_name)
+    return dict(replies=replies, current_user_name = current_user_name)
 
 @action('delete_reply')
 @action.uses(url_signer.verify(), db)
