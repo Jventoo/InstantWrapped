@@ -77,7 +77,7 @@
         <div class="columns is-mobile">
             <div class="column is-three-fifths">
                 <div class="tile is-ancestor">
-                    <div class="tile is-parent is-vertical">
+                    <div class="tile is-parent is-vertical mr-6">
                         <div class="tile is-child">
                             <p class="title">Playlists</p>
                             <div v-if="top_playlists.length">
@@ -93,7 +93,45 @@
                         </div>
                         <div class="tile is-child">
                             <p class="title">Comments</p>
-                            <p class="subtitle">Comments show up here</p>
+                            <!--<h1 class="subtitle is-max-desktop">Comments</h1>-->
+                            <div v-if="add_mode" class="container block">
+                                <div class="form">
+                                <div class="field">
+                                    <div class="control">
+                                    <textarea type="text" v-model="add_comment_txt" class="textarea" placeholder="Enter new post here"></textarea>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="control">
+                                    <input type="submit" @click="add_comment" value="Comment" class="button is-success">
+                                    <input type="submit" @click="set_add_status(-1,false)" value="Cancel" class="button is-warning">
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            <div v-else class="container block">
+                                <button @click="set_add_status(-1,true)" class="button is-success">
+                                <i class="fa fa-plus fa-fw"></i>
+                                </button>
+                            </div>
+
+                            <div class="container block is-max-desktop">
+                                <article class="message is-success" v-for="c in comments.slice().reverse()">
+                                    <div class="message-header">
+                                        <a :href="'/instant_wrapped/' + 'view_user_profile/' + c.comment_author"> {{c.author_name}} </a>
+                                        <div v-if="current_user == c.comment_author">
+                                            <button @click="delete_comment(c._idx)" class="button is-danger is-inverted">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="message-body">
+                                        <div class="w3-jumbo" style="margin-top:5px;color:#000000;">
+                                            {{c.comment_txt}}
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -101,7 +139,7 @@
             <div class="column">
                 <div class="tile is-parent is-vertical">
                     <div class="tile is-child">
-                        <p class="title has-text-centered">Top 5 Songs</p>
+                        <p class="title">Top 5 Songs</p>
                         <div v-if="top_songs.length">
                             <div v-for="i in top_songs">
                                 <p class="subtitle">{{i.song_name}}</p>
@@ -112,7 +150,7 @@
                         </div>
                     </div>
                     <div class="tile is-child">
-                        <p class="title has-text-centered">Top 5 Artists</p>
+                        <p class="title">Top 5 Artists</p>
                         <div v-if="top_artists.length">
                             <div v-for="i in top_artists">
                                 <p class="subtitle">{{i.artist_name}}</p>
@@ -123,7 +161,7 @@
                         </div>
                     </div>
                     <div class="tile is-child">
-                        <p class="title has-text-centered">Top 5 Genres</p>
+                        <p class="title">Top 5 Genres</p>
                         <div v-if="top_genres.length">
                             <div v-for="i in top_genres">
                                 <p class="subtitle">{{i.genre_name}}</p>
@@ -147,6 +185,9 @@
 <script>
     let load_profile_url = "[[=XML(load_profile_url)]]";
     let load_stats_url = "[[=XML(load_stats_url)]]";
+    let load_comments_url = "[[=XML(load_comments_url)]]";
+    let add_comment_url = "[[=XML(add_comment_url)]]";
+    let delete_comment_url = "[[=XML(delete_comment_url)]]";
 </script>
 <script src="js/view_user_profile.js"></script>
 [[end]]

@@ -11,18 +11,27 @@ let init = (app) => {
     app.data = {
         profile_loading: true,
         stats_loading: false,
+
         following: false,
         num_followers: 0,
         num_following: 0,
-        user_id: -1,
+    
         current_user: -1,
+        current_user_name: "",
+
+        user_id: -1,
         user_name: "",
+        user_picture: "",
+        biography: "",
+
         top_songs: [],
         top_artists: [],
         top_genres: [],
         top_playlists: [],
-        user_picture: "",
-        biography: "",
+
+        add_mode: false,
+        add_comment_txt: "",
+        comments: [],
     };
 
     app.set_following = function(new_status) {
@@ -39,8 +48,65 @@ let init = (app) => {
         }
     }
 
+    app.enumerate = (a) => {
+        // This adds an _idx field to each element of the array.
+        let k = 0;
+        a.map((e) => {
+            e._idx = k++;
+        });
+        return a;
+    };
+
+    app.set_add_status = function (new_status) {
+        app.vue.add_mode = new_status;
+        if (new_status == false) {
+            app.reset_form();
+        }
+    };
+    
+    app.reset_form = function () {
+        app.vue.add_comment_txt = "";
+    };
+
+
+    app.add_comment = function () {
+        axios.post(add_comment_url,
+            {
+                comment_txt: app.vue.add_comment_txt,
+            }).then(function (response) {
+                app.vue.current_user_name = response.data.current_user_name;
+                app.vue.comments.push({
+                    id: response.data.id,
+                    comment_author: app.vue.current_user,
+                    comment_txt: app.vue.add_comment_txt,
+                    author_name: response.data.author,
+                });
+                app.enumerate(app.vue.comments);
+                app.reset_form();
+                app.set_add_status(false);
+        });
+    };
+
+
+    app.delete_comment = function (row_idx) {
+        let id = app.vue.comments[row_idx].id;
+        axios.get(delete_comment_url, {params: {id: id}}).then(function (response) {
+            for (let i = 0; i < app.vue.comments.length; i++) {
+                if (app.vue.comments[i].id === id) {
+                    app.vue.comments.splice(i, 1);
+                    app.enumerate(app.vue.comments);
+                    break;
+                }
+            }
+        });
+    };
+
     app.methods = {
         set_following: app.set_following,
+        set_add_status: app.set_add_status,
+        reset_form: app.reset_form,
+        add_comment: app.add_comment,
+        delete_comment: app.delete_comment,
     };
 
     app.vue = new Vue({
@@ -69,6 +135,12 @@ let init = (app) => {
 
             app.vue.profile_loading = false;
 
+            axios.get(load_comments_url).then(function(response){
+                let comments = response.data.comments;
+                app.vue.current_user_name = response.data.current_user_name;
+                app.vue.comments = app.enumerate(comments);
+            });
+
             if (app.vue.top_songs.length == 0 || app.vue.top_artists.length == 0 ||  app.vue.top_genres.length == 0 )
             {
                 app.vue.stats_loading = true;
@@ -84,7 +156,6 @@ let init = (app) => {
             }
         });
     };
-
 
     app.init();
 };

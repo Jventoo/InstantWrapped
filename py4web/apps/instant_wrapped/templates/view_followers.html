@@ -7,39 +7,37 @@
 </style>
 
 <div class="section mx-6" id="vue-target" v-cloak>
-    <nav class="level">
-        <div class="level-left">
-            <div class="level-item mr-5">
-                <a class="button is-dark is-rounded is-outlined" :href="'/instant_wrapped/' + 'view_user_profile/' + user_id">
-                    <span class="icon">
-                        <i class="fa fa-step-forward"></i>
-                    </span>
-                    <span>Return</span>
-                </a>
-            </div>
-            <div class="level-item">
-                <div>
-                    <p class="title">{{username}}</p>
+    <a class="button is-dark is-rounded is-outlined" :href="'/instant_wrapped/' + 'view_user_profile/' + user_id">
+        <span class="icon">
+            <i class="fa fa-flip-horizontal fa-step-forward"></i>
+        </span>
+        <span>Return</span>
+    </a>
+    <p class="title mt-5">{{username}}</p>
+    <div class="columns is-mobile">
+        <div class="column">
+            <p class="subtitle">Followers</p>
+            <nav class="level" v-for="follower in followers">
+                <div class="level-left">
+                    <figure class="image is-48x48">
+                        <img v-bind:src="follower[2]" class="is-rounded">
+                    </figure>
+                    <a class="ml-2" :href="'/instant_wrapped/' + 'view_user_profile/' + follower[0]">{{follower[1]}}</a>
                 </div>
-            </div>
+            </nav>
         </div>
-    </nav>
-    <table class="table is-striped">
-        <tr>
-            <th>Follower</th>
-        </tr>
-        <tr v-for="name in followers">
-            <td>{{name}}</td>
-        </tr>
-    </table>
-    <table class="table is-striped">
-        <tr>
-            <th>Following</th>
-        </tr>
-        <tr v-for="name in following">
-            <td>{{name}}</td>
-        </tr>
-    </table>
+        <div class="column">
+            <p class="subtitle">Following</p>
+            <nav class="level" v-for="followee in following">
+                <div class="level-left">
+                    <figure class="image is-48x48">
+                        <img v-bind:src="followee[2]" class="is-rounded">
+                    </figure>
+                    <a class="ml-2" :href="'/instant_wrapped/' + 'view_user_profile/' + followee[0]">{{followee[1]}}</a>
+                </div>
+            </nav>
+        </div>
+    </div>
 </div>
 
 

@@ -388,6 +388,9 @@ def dashboard(user_id):
     return dict(
         load_profile_url=URL('load_profile', user_id, signer=url_signer),
         load_stats_url=URL('load_stats', signer=url_signer),
+        add_comment_url=URL('add_profile_comment', user_id, signer=url_signer),
+        load_comments_url=URL('load_profile_comments', user_id, signer=url_signer),
+        delete_comment_url = URL('delete_profile_comment', signer=url_signer),
     )
 
 @action('load_leaderboard')
@@ -527,7 +530,6 @@ def delete_post():
     db(db.comments.id == id).delete()
     return "ok"
 
-
 @action('add_reply', method="POST")
 @action.uses(db, auth.user)
 def add_reply():
@@ -560,6 +562,37 @@ def delete_post():
     db(db.replies.id == id).delete()
     return "ok"
 
+@action('add_profile_comment/<uid:int>', method="POST")
+@action.uses(db, auth.user)
+def add_comment(uid):
+    r = db(db.auth_user.id == models.get_user()).select().first()
+    id = db.profile_comments.insert(
+        profile_id = uid, 
+        comment_txt = request.json.get('comment_txt'),
+    )
+    name = r.username
+    return dict(id=id, author=name, current_user_name = name)
+
+@action('load_profile_comments/<uid:int>')
+@action.uses(db, auth.user)
+def load_comments(uid):
+    assert uid is not None
+    comments = db(db.profile_comments.profile_id == uid).select().as_list()
+    temp = db(db.auth_user.id == models.get_user()).select().first()
+    current_user_name = temp.username
+    for comment in comments:
+        r = db(db.auth_user.id == comment["comment_author"]).select().first()
+        comment["author_name"] = r.username
+    return dict(comments=comments, current_user_name = current_user_name)
+
+@action('delete_profile_comment')
+@action.uses(url_signer.verify(), db)
+def delete_post():
+    id = request.params.get('id')
+    assert id is not None
+    db(db.profile_comments.id == id).delete()
+    return "ok"
+
 @action('view_followers/<user_id:int>')
 @action.uses(db, auth.user, 'view_followers.html')
 def view_followers(user_id):
@@ -575,14 +608,14 @@ def load_followers(user_id):
     follower_rows = db(db.followers.followee == user_id).select().as_list()
     follower_names = []
     for entry in follower_rows:
-        temp_follower = db(db.auth_user.id == entry.follower).select().first()
-        follower_names.append(temp_follower.username)
+        temp_follower = db(db.auth_user.id == entry['follower']).select().first()
+        follower_names.append((temp_follower.id, temp_follower.username, temp_follower.profile_picture))
 
     following_rows = db(db.followers.follower == user_id).select().as_list()
     following_names = []
     for entry in following_rows:
-        temp_following = db(db.auth_user.id == entry.followee).select().first()
-        following_names.append(temp_following.username)
+        temp_following = db(db.auth_user.id == entry['followee']).select().first()
+        following_names.append((temp_following.id, temp_following.username, temp_follower.profile_picture))
 
     temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username

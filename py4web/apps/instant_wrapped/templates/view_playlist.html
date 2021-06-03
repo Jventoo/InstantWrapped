@@ -7,131 +7,135 @@
 </style>
 
 <div class="section mx-6" id="vue-target" v-cloak>
-    <nav class="level">
-        <div class="level-left">
-            <div class="level-item mr-5">
-                <figure class="image is-128x128 has-image-centered">
-                    <img v-bind:src="playlist_picture">
-                </figure>
-            </div>
-            <div class="level-item">
-                <div>
-                    <a :href="playlist_link" class="title">{{playlist_name}}</a>
-                    <p class="subtitle mt-1">Created by 
-                        <a :href="'/instant_wrapped/' + 'view_user_profile/' + playlist_owner"> {{playlist_owner_name}} </a>
-                    </p> 
+    <div v-if="!playlist_loading">
+        <nav class="level">
+            <div class="level-left">
+                <div class="level-item mr-5">
+                    <figure class="image is-128x128 has-image-centered">
+                        <img v-bind:src="playlist_picture">
+                    </figure>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <a :href="playlist_link" class="title">{{playlist_name}}</a>
+                        <p class="subtitle mt-1">Created by 
+                            <a :href="'/instant_wrapped/' + 'view_user_profile/' + playlist_owner"> {{playlist_owner_name}} </a>
+                        </p> 
+                    </div>
+                </div>
+                <div class="level-item">
                 </div>
             </div>
-            <div class="level-item">
+            <div class="level-right">
+                <div class="level-item" v-if="playlist_owner === current_user">
+                    <div v-if="currently_displayed">
+                        <button type="submit" @click="change_post_status(false)"
+                                class="button is-success is-rounded is-outlined is-medium">
+                            <span class="icon">
+                                <i class="fa fa-minus"></i>
+                            </span>
+                            <span>Unpost from Leaderboard</span>
+                        </button>
+                    </div>
+                    <div v-else>
+                        <button type="submit" @click="change_post_status(true)"
+                                class="button is-success is-rounded is-outlined is-medium">
+                            <span class="icon">
+                                <i class="fa fa-plus"></i>
+                            </span>
+                            <span>Post to Leaderboard</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <table class="table is-striped is-fullwidth">
+            <tr>
+                <th>#</th>
+                <th>Song</th>
+                <th>Artist(s)</th>
+            </tr>
+            <tr v-for="(row, index) in rows['tracks']">
+                <td>{{index+1}}</td>
+                <td>{{row }}</td>
+                <td>{{rows["authors"][index]}}</td>
+            </tr>
+        </table>
+        <h1 class="subtitle is-max-desktop">Comments</h1>
+        <div v-if="add_mode" class="container block">
+            <div class="form">
+            <div class="field">
+                <div class="control">
+                <textarea type="text" v-model="add_comment_txt" class="textarea" placeholder="Enter new post here"></textarea>
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                <input type="submit" @click="add_comment" value="Comment" class="button is-success">
+                <input type="submit" @click="set_add_status(-1,false)" value="Cancel" class="button is-warning">
+                </div>
+            </div>
             </div>
         </div>
-        <div class="level-right">
-            <div class="level-item" v-if="playlist_owner === current_user">
-                <div v-if="currently_displayed">
-                    <button type="submit" @click="change_post_status(false)"
-                            class="button is-success is-rounded is-outlined is-medium">
-                        <span class="icon">
-                            <i class="fa fa-minus"></i>
-                        </span>
-                        <span>Unpost from Leaderboard</span>
-                    </button>
-                </div>
-                <div v-else>
-                    <button type="submit" @click="change_post_status(true)"
-                            class="button is-success is-rounded is-outlined is-medium">
-                        <span class="icon">
-                            <i class="fa fa-plus"></i>
-                        </span>
-                        <span>Post to Leaderboard</span>
-                    </button>
-                </div>
-            </div>
+        <div v-else class="container block">
+            <button @click="set_add_status(-1,true)" class="button is-success">
+            <i class="fa fa-plus fa-fw"></i>
+            </button>
         </div>
-    </nav>
-    <table class="table is-striped is-fullwidth">
-        <tr>
-            <th>#</th>
-            <th>Song</th>
-            <th>Artist(s)</th>
-        </tr>
-        <tr v-for="(row, index) in rows['tracks']">
-            <td>{{index+1}}</td>
-            <td>{{row }}</td>
-            <td>{{rows["authors"][index]}}</td>
-        </tr>
-    </table>
-    <h1 class="subtitle is-max-desktop">Comments</h1>
-    <div v-if="add_mode" class="container block">
-        <div class="form">
-          <div class="field">
-            <div class="control">
-              <textarea type="text" v-model="add_comment_txt" class="textarea" placeholder="Enter new post here"></textarea>
-            </div>
-          </div>
-          <div class="field">
-            <div class="control">
-              <input type="submit" @click="add_comment" value="Comment" class="button is-success">
-              <input type="submit" @click="set_add_status(-1,false)" value="Cancel" class="button is-warning">
-            </div>
-          </div>
-        </div>
-    </div>
-    <div v-else class="container block">
-        <button @click="set_add_status(-1,true)" class="button is-success">
-          <i class="fa fa-plus fa-fw"></i>
-        </button>
-    </div>
-
-    <div class="container block is-max-desktop">
-        <article class="message is-success" v-for="c in comments.slice().reverse()">
-            <div class="message-header">
-                <a :href="'/instant_wrapped/' + 'view_user_profile/' + c.comment_author"> {{c.author_name}} </a>
-                <div v-if="current_user == c.comment_author">
-                    <button @click="delete_comment(c._idx)" class="button is-danger is-inverted">
-                        <i class="fa fa-trash"></i></button>
+        <div class="container block is-max-desktop">
+            <article class="message is-success" v-for="c in comments.slice().reverse()">
+                <div class="message-header">
+                    <a :href="'/instant_wrapped/' + 'view_user_profile/' + c.comment_author"> {{c.author_name}} </a>
+                    <div v-if="current_user == c.comment_author">
+                        <button @click="delete_comment(c._idx)" class="button is-danger is-inverted">
+                            <i class="fa fa-trash"></i></button>
+                    </div>
                 </div>
-            </div>
-            <div class="message-body">
-                <div class="w3-jumbo" style="margin-top:5px;color:#000000;">
-                    {{c.comment_txt}}
-                </div>
-                <br>
-                <div class="message is-danger" v-for="r in c.replies.slice()">
-                    <div class="message-header">
-                        <a :href="'/instant_wrapped/' + 'view_user_profile/' + r.reply_author"> {{r.author_name}} </a>
-                        <div v-if="current_user == r.reply_author">
-                            <button @click="delete_reply(c._idx, r._idx)" class="button is-danger is-inverted">
-                                <i class="fa fa-trash"></i></button>
+                <div class="message-body">
+                    <div class="w3-jumbo" style="margin-top:5px;color:#000000;">
+                        {{c.comment_txt}}
+                    </div>
+                    <br>
+                    <div class="message is-danger" v-for="r in c.replies.slice()">
+                        <div class="message-header">
+                            <a :href="'/instant_wrapped/' + 'view_user_profile/' + r.reply_author"> {{r.author_name}} </a>
+                            <div v-if="current_user == r.reply_author">
+                                <button @click="delete_reply(c._idx, r._idx)" class="button is-danger is-inverted">
+                                    <i class="fa fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="message-body">
+                            <h2 class="w3-jumbo" style="margin-top:5px;color:#000000;">
+                                {{r.reply_txt}}</h2>
                         </div>
                     </div>
-                    <div class="message-body">
-                        <h2 class="w3-jumbo" style="margin-top:5px;color:#000000;">
-                            {{r.reply_txt}}</h2>
+                </div>
+                <div v-if="c.reply_mode" class="container block">
+                    <div class="form">
+                    <div class="field">
+                        <div class="control">
+                        <textarea type="text" v-model="c.add_reply_txt" class="textarea" placeholder="Enter reply here"></textarea>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                        <input type="submit" @click="add_reply(c._idx)" value="Reply" class="button is-danger">
+                        <input type="submit" @click="set_add_status(c._idx,false)" value="Cancel" class="button is-warning">
+                        </div>
+                    </div>
                     </div>
                 </div>
-            </div>
-            <div v-if="c.reply_mode" class="container block">
-                <div class="form">
-                  <div class="field">
-                    <div class="control">
-                      <textarea type="text" v-model="c.add_reply_txt" class="textarea" placeholder="Enter reply here"></textarea>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <div class="control">
-                      <input type="submit" @click="add_reply(c._idx)" value="Reply" class="button is-danger">
-                      <input type="submit" @click="set_add_status(c._idx,false)" value="Cancel" class="button is-warning">
-                    </div>
-                  </div>
+                <div v-else class="container block">
+                    <button @click="set_add_status(c._idx,true)" class="button is-success">
+                    <i class="fa fa-plus fa-fw"></i>
+                    </button>
                 </div>
-            </div>
-            <div v-else class="container block">
-                <button @click="set_add_status(c._idx,true)" class="button is-success">
-                  <i class="fa fa-plus fa-fw"></i>
-                </button>
-            </div>
-            <!--THIS IS WHERE THE ADD REPLY BUTTON GOES-->
-        </article>
+                <!--THIS IS WHERE THE ADD REPLY BUTTON GOES-->
+            </article>
+        </div>
+    </div>
+    <div v-else class="section">
+        <progress class="progress is-medium is-success" max="100"></progress>
     </div>
 </div>
 
