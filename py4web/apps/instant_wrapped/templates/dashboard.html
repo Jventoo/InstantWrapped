@@ -52,47 +52,34 @@
         </div>
     </div>
 
-
-    <div v-if="stats_loaded && time_range === 0" class="container block">
-        <div class="title">You Selected: Short Term Data!</div>
-        <select v-model="desired_data">
-            <option disabled value="">Please select one</option>
-            <option>Top Songs</option>
-            <option>Top Artists</option>
-        </select>
-        <!--<span>Selected: {{ desired_data }}</span>-->
-    </div>
-
-    <div v-if="stats_loaded && time_range === 1" class="container block">
-        <div class="title">You Selected: Medium Term Data!</div>
-        <select v-model="desired_data">
-            <option disabled value="">Please select one</option>
-            <option>Top Songs</option>
-            <option>Top Artists</option>
-        </select>
-        <!--<span>Selected: {{ desired_data }}</span>-->
-    </div>
-
-    <div v-if="stats_loaded && time_range === 2" class="container block">
-        <div class="title">You Selected: Long Term Data!</div>
-        <select v-model="desired_data">
-            <option disabled value="">Please select one</option>
-            <option>Top Songs</option>
-            <option>Top Artists</option>
-        </select>
-        <!--<span>Selected: {{ desired_data }}</span>-->
-    </div>
-
-    <div v-if="stats_loaded && desired_data === 'Top Songs'" class="section">
-        <h1 class="title">Your Top Songs </h1>
+    <div v-if="stats_loaded && desired_data === 'Top Songs'" class="mx-6 mt-5">
+        <div class="columns is-mobile">
+            <div class="column is-four-fifths">
+                <h1 class="title">Your Top Songs</h1>
+                <p class="subtitle" v-if="time_range == 0">Last 30 Days</p>
+                <p class="subtitle" v-else-if="time_range == 1">Last 6 Months</p>
+                <p class="subtitle" v-else>All Time</p>
+            </div>
+            <div class="column">
+                <button type="submit" @click="desired_data = 'Top Artists'"
+                        class="button is-dark is-rounded is-outlined">
+                        <span class="icon">
+                            <i class="fa fa-step-forward"></i>
+                        </span>
+                    <span>Artists</span>
+                </button>
+            </div>
+        </div>
         <table class="table is-striped is-fullwidth">
             <tr>
                 <th>Rank</th>
                 <th>Song</th>
+                <th>Artist(s)</th>
             </tr>
             <tr v-for="i in rows['track_rankings']">
                 <td>{{i+1}}</td>
-                <td>{{rows["top_tracks"][i]}}</td>
+                <td>{{rows["top_tracks"][i][0]}}</td>
+                <td>{{rows["top_tracks"][i][1]}}</td>
             </tr>
         </table>
         <div v-if="!playlist_saved && save_mode === false">
@@ -115,9 +102,9 @@
                     <div class="field">
                         <div class="control">
                             <input type="submit" @click="create_playlist(top_tracks)" value="Save Playlist"
-                                   class="button is-dark is-rounded">
+                                    class="button is-dark is-rounded">
                             <input type="submit" @click="set_save_status(false)" value="Cancel"
-                                   class="button is-light is-rounded">
+                                    class="button is-light is-rounded">
                         </div>
                     </div>
                 </div>
@@ -130,8 +117,24 @@
             </button>
         </div>
     </div>
-    <div v-else-if="stats_loaded && desired_data === 'Top Artists'" class="section">
-        <h1 class="title">Your Top Artists </h1>
+    <div v-else-if="stats_loaded && desired_data === 'Top Artists'" class="mx-6 mt-5">
+        <div class="columns is-mobile">
+            <div class="column is-four-fifths">
+                <h1 class="title">Your Top Artists</h1>
+                <p class="subtitle" v-if="time_range == 0">Last 30 Days</p>
+                <p class="subtitle" v-else-if="time_range == 1">Last 6 Months</p>
+                <p class="subtitle" v-else>All Time</p>
+            </div>
+            <div class="column">
+                <button type="submit" @click="desired_data = 'Top Songs'"
+                        class="button is-dark is-rounded is-outlined">
+                        <span class="icon">
+                            <i class="fa fa-step-forward"></i>
+                        </span>
+                    <span>Songs</span>
+                </button>
+            </div>
+        </div>
         <table class="table is-striped is-fullwidth">
             <tr>
                 <th>Rank</th>

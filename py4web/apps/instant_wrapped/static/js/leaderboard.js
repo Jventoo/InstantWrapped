@@ -10,6 +10,8 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         rows: [],
+        leaderboard_loading: true,
+        current_user: -1,
     };
 
     app.enumerate = (a) => {
@@ -43,7 +45,13 @@ let init = (app) => {
             playlist_id: row.id,
             upvote_status: row.upvote_status,
             new_score: row.current_score,
-        });
+        }).then(function (response) {
+            let rows = app.vue.rows;
+            rows.sort(function(a, b) {
+                return b.current_score - a.current_score;
+            });
+            Vue.set(app.vue.rows, app.enumerate(rows));
+            });
     };
 
     app.save_playlist= function (PID) {
@@ -67,6 +75,7 @@ let init = (app) => {
 
     app.init = () => {
         axios.get(load_leaderboard_url).then(function (response) {
+            app.vue.current_user = response.data.current_user;
             let rows = response.data.rows;
             app.complete(rows);
             app.vue.rows = app.enumerate(rows);
@@ -77,6 +86,7 @@ let init = (app) => {
                         .then((response) => {
                             row.upvote_status = response.data.upvote_status;
                             row.current_score = response.data.current_score;
+                            app.vue.leaderboard_loading = false;
                         });
                 }
             });

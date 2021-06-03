@@ -17,7 +17,7 @@ let init = (app) => {
         playlist_to_post: false,
         pid: 0,
         add_playlist_name: "",
-        desired_data: "",
+        desired_data: "Top Songs",
         top_tracks: [],
         rows: [],
         counter: 0,

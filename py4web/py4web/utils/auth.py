@@ -73,7 +73,7 @@ class AuthEnforcer(Fixture):
         if request.query_string:
             redirect_next = redirect_next + "?{}".format(request.query_string)
         self.auth.flash.set(message)
-        redirect("auth/plugin/oauth2spotify/login"
+        redirect(URL("auth/plugin/oauth2spotify/login")
             # URL(
             #     self.auth.route,
             #     page,
@@ -1256,4 +1256,4 @@ class DefaultAuthForms:
         if not form:
             redirect(self.auth.next.get(action) or URL("index"))
         elif form.accepted:
-            redirect(URL("dashboard"))
+            redirect(URL("view_user_profile", user.id))

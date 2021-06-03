@@ -10,17 +10,22 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         rows: [],
-        playlist_owner: -20,
-        current_user: -10,
-        currently_displayed: false,
         pid: 0,
+        currently_displayed: false,
+        playlist_loading: true,
+
+        playlist_owner: -20,
+        playlist_picture: "",
+        playlist_link: "",
+        playlist_owner_name: "",
+        playlist_name: "",
 
         add_mode: false,
         add_comment_txt: "",
-
-        current_user_email: "",
-        current_user_name: "",
         comments: [],
+
+        current_user: -10,
+        current_user_name: "",
     };
 
     app.change_post_status = function (post_status){
@@ -57,7 +62,10 @@ let init = (app) => {
         else{ 
             app.vue.comments[comment_idx].reply_mode = new_status;
         }
-            
+        
+        if (new_status == false) {
+            app.reset_form(comment_idx);
+        }
     };
     
     app.reset_form = function (comment_idx) {
@@ -76,12 +84,11 @@ let init = (app) => {
                 comment_txt: app.vue.add_comment_txt,
             }).then(function (response) {
             app.vue.current_user_name = response.data.current_user_name;
-            app.vue.current_user_email = response.data.current_user_email;
             app.vue.comments.push({
                 id: response.data.id,
+                comment_author: app.vue.current_user,
                 comment_txt: app.vue.add_comment_txt,
-                comment_author: response.data.author,
-                user_email: response.data.current_user_email,
+                author_name: response.data.author,
                 replies : [],
                 reply_mode : false,
                 add_reply_txt : "",
@@ -115,12 +122,11 @@ let init = (app) => {
                 reply_txt: app.vue.comments[comment_idx].add_reply_txt,
             }).then(function (response) {
             app.vue.current_user_name = response.data.current_user_name;
-            app.vue.current_user_email = response.data.current_user_email;
             replies.push({
                 id: response.data.id,
+                reply_author: app.vue.current_user,
                 reply_txt: app.vue.comments[comment_idx].add_reply_txt,
-                reply_author: response.data.author,
-                user_email: response.data.current_user_email,
+                author_name: response.data.author,
             });
             app.enumerate(replies);
             app.reset_form(comment_idx);
@@ -160,30 +166,33 @@ let init = (app) => {
 
 
     app.init = () => {
-        axios.get(load_playlist_url).then(function (response) {
+        axios.get(load_playlist_url).then(function(response) {
             let rows = response.data.rows;
             app.vue.rows = rows;
+            app.vue.playlist_picture = response.data.playlist_picture;
+            app.vue.playlist_link = response.data.playlist_link;
             app.vue.playlist_owner = response.data.playlist_owner;
+            app.vue.playlist_owner_name = response.data.playlist_owner_name;
             app.vue.current_user = response.data.current_user;
             app.vue.currently_displayed = response.data.currently_displayed;
             app.vue.pid = response.data.pid;
-            });
-        axios.get(load_comments_url).then(function(response){
-            let comments = response.data.comments;
-            app.vue.current_user_email = response.data.current_user_email;
-            app.vue.current_user_name = response.data.current_user_name;
-            app.complete(comments);
-            app.vue.comments = app.enumerate(comments);
-            })
-            .then(()=>{
-                for (let comment of app.vue.comments){
+            app.vue.playlist_name = response.data.playlist_name;
+            axios.get(load_comments_url).then(function(response){
+                let comments = response.data.comments;
+                app.vue.current_user_name = response.data.current_user_name;
+                app.complete(comments);
+                app.vue.comments = app.enumerate(comments);
+            }).then(function(response){
+                for (let comment of app.vue.comments) {
                     axios.get(load_replies_url, {params: {"comment_id": comment.id}})
                         .then((response) =>{
                             comment.replies = response.data.replies;
                             comment.replies = app.enumerate(comment.replies);
                         });
                 }
-            })       
+                app.vue.playlist_loading = false;
+            });
+        });
     };
 
 

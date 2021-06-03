@@ -181,7 +181,6 @@ db.define_table(
     'comments',
     Field('playlist_id', 'reference user_playlist', ondelete ="CASCADE"),
     Field('comment_author', 'reference auth_user', default=get_user),
-    Field('user_email', default=get_user_email),
     Field('comment_txt', 'text', requires=IS_NOT_EMPTY()),
 )
 
@@ -190,11 +189,22 @@ db.define_table(
     'replies',
     Field('comment_id', 'reference comments', ondelete ="CASCADE"),
     Field('reply_author', 'reference auth_user', default=get_user),
-    Field('user_email', default=get_user_email),
     Field('reply_txt', 'text', requires=IS_NOT_EMPTY()),
 )
 
+db.define_table(
+    'profile_comments',
+    Field('profile_id', 'reference auth_user', ondelete ="CASCADE"),
+    Field('comment_author', 'reference auth_user', default=get_user),
+    Field('comment_txt', 'text', requires=IS_NOT_EMPTY()),
+)
 
+# 'follower' is the user following the 'followee'
+db.define_table(
+    'followers',
+    Field('follower', 'reference auth_user', default=get_user),
+    Field('followee', 'reference auth_user'),
+)
 
 # Not sure how best to have review DB entry work for any type
 # of resource (track, album, artist, etc) so I just added a field
