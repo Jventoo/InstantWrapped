@@ -199,6 +199,13 @@ db.define_table(
     Field('comment_txt', 'text', requires=IS_NOT_EMPTY()),
 )
 
+# 'follower' is the user following the 'followee'
+db.define_table(
+    'followers',
+    Field('follower', 'reference auth_user', default=get_user),
+    Field('followee', 'reference auth_user'),
+)
+
 # Not sure how best to have review DB entry work for any type
 # of resource (track, album, artist, etc) so I just added a field
 # for Spotify ID and we can look up what type of resource it is at

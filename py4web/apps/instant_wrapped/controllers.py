@@ -361,10 +361,20 @@ def get_profile(user_id):
         except:
             continue
 
+    follow_row = db(
+        (db.followers.followee == uid) & (db.followers.follower == models.get_user())
+    ).select().first()
+    is_following = (follow_row is not None)
+
+    followers_count = len(db(db.followers.followee == uid).select().as_list())
+    following_count = len(db(db.followers.follower == uid).select().as_list())
+
     return dict(
         user_id=uid, current_user=models.get_user(), user_name=name,
         user_picture=picture, biography=bio, top_songs=songs,
-        top_artists=artists, top_genres=genres, playlists=pls
+        top_artists=artists, top_genres=genres, playlists=pls,
+        following=is_following,num_followers=followers_count,
+        num_following=following_count
     )
 
 @action('find_matches', method='GET')
@@ -532,7 +542,7 @@ def add_reply():
 
 @action('load_replies')
 @action.uses(db, auth.user)
-def load_comments():
+def load_replies():
     comment_id = request.params.get('comment_id')
     replies = db(db.replies.comment_id == comment_id).select().as_list()
     temp = db(db.auth_user.id == models.get_user()).select().first()
@@ -548,4 +558,51 @@ def delete_post():
     id = request.params.get('id')
     assert id is not None
     db(db.replies.id == id).delete()
+    return "ok"
+
+@action('view_followers/<user_id:int>')
+@action.uses(db, auth.user, 'view_followers.html')
+def view_followers(user_id):
+    return dict(
+        load_followers_url=URL('load_followers', user_id, signer=url_signer),
+    )
+
+@action('load_followers/<user_id:int>', method="GET")
+@action.uses(db, auth.user)
+def load_followers(user_id):
+    assert user_id is not None
+
+    follower_rows = db(db.followers.followee == user_id).select().as_list()
+    follower_names = []
+    for entry in follower_rows:
+        temp_follower = db(db.auth_user.id == entry.follower).select().first()
+        follower_names.append(temp_follower.username)
+
+    following_rows = db(db.followers.follower == user_id).select().as_list()
+    following_names = []
+    for entry in following_rows:
+        temp_following = db(db.auth_user.id == entry.followee).select().first()
+        following_names.append(temp_following.username)
+
+    temp = db(db.auth_user.id == models.get_user()).select().first()
+    current_user_name = temp.username
+    return dict(followers=follower_names, following=following_names,
+        user_id=user_id, username=current_user_name)
+
+@action('start_following', method="POST")
+@action.uses(db, auth.user, url_signer.verify())
+def start_following():
+    user_id = request.params.get('user_id')
+    assert user_id is not None
+    db.followers.update_or_insert(follower=models.get_user(),followee=user_id)
+    return dict()
+
+@action('stop_following', method="POST")
+@action.uses(db, auth.user, url_signer.verify())
+def stop_following():
+    user_id = request.params.get('user_id')
+    assert user_id is not None
+    db(
+        (db.followers.follower == models.get_user()) & (db.followers.followee == user_id)
+    ).delete()
     return "ok"
