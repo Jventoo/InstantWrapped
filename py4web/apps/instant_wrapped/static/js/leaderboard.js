@@ -11,7 +11,10 @@ let init = (app) => {
     app.data = {
         rows: [],
         leaderboard_loading: true,
+
         current_user: -1,
+        
+        matching_users: [],
     };
 
     app.enumerate = (a) => {
@@ -72,23 +75,25 @@ let init = (app) => {
     });
 
 
-
     app.init = () => {
         axios.get(load_leaderboard_url).then(function (response) {
-            app.vue.current_user = response.data.current_user;
-            let rows = response.data.rows;
-            app.complete(rows);
-            app.vue.rows = app.enumerate(rows);
-            })
-            .then(() => {
+                app.vue.current_user = response.data.current_user;
+                let rows = response.data.rows;
+                app.complete(rows);
+                app.vue.rows = app.enumerate(rows);
+            }).then(function (response) {
                 for (let row of app.vue.rows) {
                     axios.get(get_rating_url, {params: {"playlist_id": row.id}})
                         .then((response) => {
                             row.upvote_status = response.data.upvote_status;
                             row.current_score = response.data.current_score;
-                            app.vue.leaderboard_loading = false;
                         });
                 }
+            }).then(function (response) {
+                axios.get(load_matches_url).then(function (response) {
+                    app.vue.matching_users = response.data.top_users;
+                    app.vue.leaderboard_loading = false;
+                });
             });
     };
 
