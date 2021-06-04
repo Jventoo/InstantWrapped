@@ -408,6 +408,42 @@ def load_leaderboard():
     rows2 = sorted(rows, key=lambda i: i['rate_score'],reverse=True)
     return dict(rows = rows2, current_user=models.get_user())
 
+@action('load_matches')
+@action.uses(db, auth.user, url_signer.verify())
+def load_matches():
+    user_lim = 5               # CONSTANT
+    uid = models.get_user()
+    assert uid is not None
+    
+    user_frequency = {}        # {user id, freq}
+    top_genres = db(db.user_top_genre.user_id == uid).select().as_list()
+
+    # Find similar users based on top genres
+    for top_entry in top_genres:
+        genre_id = top_entry['genre_id']
+        rows = db(
+            (db.user_top_genre.genre_id == genre_id) & (db.user_top_genre.user_id != uid)
+        ).select().as_list()
+        for row in rows:
+            user = row['user_id']
+            if user in user_frequency:
+                user_frequency[user] += 1
+            else:
+                user_frequency[user] = 1
+
+    # Take top users from frequency list and insert into top list by descending matching
+    top_user_ids = sorted(user_frequency, key=user_frequency.get, reverse=True)
+
+    top_users = []
+    for i in range(user_lim):
+        if i >= len(top_user_ids):
+            break
+        id = top_user_ids[i]
+        username = db.auth_user[top_user_ids[i]].username
+        picture = db.auth_user[top_user_ids[i]].profile_picture
+        top_users.append((id, username, picture))
+
+    return dict(top_users=top_users)
 
 @action('upvote', method='POST')
 @action.uses(url_signer.verify(), db)
@@ -449,6 +485,7 @@ def leaderboard():
         upvote_url=URL('upvote', signer=url_signer),
         get_rating_url=URL('get_rating', signer=url_signer),
         save_playlist_url=URL('save_playlist', signer=url_signer),
+        load_matches_url=URL('load_matches', signer=url_signer),
     )
 
 @action('load_playlist/<playlist_id:int>')

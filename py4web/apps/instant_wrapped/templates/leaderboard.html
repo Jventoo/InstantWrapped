@@ -8,51 +8,66 @@
 
 <div class="section" id="vue-target" v-cloak>
     <h1 class="title has-text-centered">Leaderboard</h1>
-    <table v-if="!leaderboard_loading" class="table is-striped is-fullwidth has-text-centered">
-        <tr>
-            <th></th>
-            <th>Score</th>
-            <th>Playlist Name</th>
-            <th>Author</th>
-            <th></th>
-        </tr>
-        <tr v-for="row in rows">
-            <td>
-                <div v-if="row.upvote_status === 0">
-                    <button @click="upvote(row._idx,1)" class="button">
-                        <i class="fa fa-thumbs-o-up fa-fw"></i>
-                    </button>
+    <div v-if="!leaderboard_loading" class="columns is-mobile">
+        <div class="column">
+            <table class="table is-striped is-fullwidth has-text-centered">
+                <tr>
+                    <th></th>
+                    <th>Score</th>
+                    <th>Playlist Name</th>
+                    <th>Author</th>
+                    <th></th>
+                </tr>
+                <tr v-for="row in rows">
+                    <td>
+                        <div v-if="row.upvote_status === 0">
+                            <button @click="upvote(row._idx,1)" class="button">
+                                <i class="fa fa-thumbs-o-up fa-fw"></i>
+                            </button>
+                        </div>
+                        <div v-else>
+                            <button @click="upvote(row._idx,0)" class="button">
+                                <i class="fa fa-thumbs-up fa-fw"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="is-vcentered">{{row.current_score}}</td>
+                    <td><a :href="'/instant_wrapped/' + 'view_playlist/' + row.id" class="button is-rounded is-ghost">{{row.playlist_name}}</a></td>
+                    <td><a :href="'/instant_wrapped/' + 'view_user_profile/' + row.author_id" class="button is-rounded is-ghost">{{row.playlist_author}}</a></td>
+                    <td>
+                        <div v-if="row.author_id !== current_user">
+                            <button type="submit" @click="save_playlist(row.spotify_playlist_id)"
+                                class="button is-rounded is-dark is-outlined">
+                                <span class="icon">
+                                    <i class="fa fa-thumb-tack"></i>
+                                </span>
+                                <span>Save Playlist to Library</span>
+                            </button>
+                        </div>
+                        <div v-else>
+                            <button type="submit" class="button is-rounded is-dark is-outlined" disabled>
+                                <span class="icon">
+                                    <i class="fa fa-thumb-tack"></i>
+                                </span>
+                                <span>Save Playlist to Library</span>
+                            </button>
+                        </div
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div v-if="matching_users.length > 0" class="column is-one-quarter">
+            <p class="subtitle">Recommended Users</p>
+            <nav class="level" v-for="user in matching_users">
+                <div class="level-left">
+                    <figure class="image is-48x48">
+                        <img v-bind:src="user[2]" class="is-rounded">
+                    </figure>
+                    <a class="ml-2" :href="'/instant_wrapped/' + 'view_user_profile/' + user[0]">{{user[1]}}</a>
                 </div>
-                <div v-else>
-                    <button @click="upvote(row._idx,0)" class="button">
-                        <i class="fa fa-thumbs-up fa-fw"></i>
-                    </button>
-                </div>
-            </td>
-            <td class="is-vcentered">{{row.current_score}}</td>
-            <td><a :href="'/instant_wrapped/' + 'view_playlist/' + row.id" class="button is-rounded is-ghost">{{row.playlist_name}}</a></td>
-            <td><a :href="'/instant_wrapped/' + 'view_user_profile/' + row.author_id" class="button is-rounded is-ghost">{{row.playlist_author}}</a></td>
-            <td>
-                <div v-if="row.author_id !== current_user">
-                    <button type="submit" @click="save_playlist(row.spotify_playlist_id)"
-                        class="button is-rounded is-dark is-outlined">
-                        <span class="icon">
-                            <i class="fa fa-thumb-tack"></i>
-                        </span>
-                        <span>Save Playlist to Library</span>
-                    </button>
-                </div>
-                <div v-else>
-                    <button type="submit" class="button is-rounded is-dark is-outlined" disabled>
-                        <span class="icon">
-                            <i class="fa fa-thumb-tack"></i>
-                        </span>
-                        <span>Save Playlist to Library</span>
-                    </button>
-                </div
-            </td>
-        </tr>
-    </table>
+            </nav>
+        </div>
+    </div>
     <div v-else class="section">
         <progress class="progress is-medium is-success" max="100"></progress>
     </div>
@@ -65,6 +80,7 @@
     let upvote_url = "[[=XML(upvote_url)]]";
     let get_rating_url = "[[=XML(get_rating_url)]]";
     let save_playlist_url = "[[=XML(save_playlist_url)]]";
+    let load_matches_url = "[[=XML(load_matches_url)]]";
 </script>
 <script src="js/leaderboard.js"></script>
 [[end]]
