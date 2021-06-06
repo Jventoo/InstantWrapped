@@ -96,7 +96,7 @@
                         {{c.comment_txt}}
                     </div>
                     <br>
-                    <div class="message is-danger" v-for="r in c.replies.slice()">
+                    <div class="message is-success" v-for="r in c.replies.slice()">
                         <div class="message-header">
                             <a :href="'/instant_wrapped/' + 'view_user_profile/' + r.reply_author"> {{r.author_name}} </a>
                             <div v-if="current_user == r.reply_author">
