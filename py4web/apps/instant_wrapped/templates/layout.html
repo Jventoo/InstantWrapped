@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/bulma.css">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Spartan:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Spartan:wght@450&display=swap" rel="stylesheet">
     [[block page_head]]<!-- individual pages can customize header here -->[[end]]
   </head>
   <style>
@@ -34,8 +34,30 @@
 
       <div id="the-navbar-menu" class="navbar-menu">
         <div class="navbar-start">
+          [[if globals().get('user'):]]
+          <div class="navbar-item">
+            <a class="button is-rounded is-outlined is-normal" href="[[=URL('dashboard')]]">
+              <span class="icon">
+                  <i class="fa fa-bar-chart"></i>
+              </span>
+              <span>Dashboard</span>
+            </a>
+          </div>
+  
+          <div class="navbar-item">
+            <a class="button is-rounded is-outlined is-normal" href="[[=URL('leaderboard')]]">
+              <span class="icon">
+                  <i class="fa fa-bar-chart"></i>
+              </span>
+              <span>Leaderboard</span>
+            </a>
+          </div>
+          [[pass]]
+          
           [[block page_menu_items]]<!-- individual pages can add menu items here -->[[end]]
         </div>
+
+
 
         <div class="navbar-end">
           <div class="navbar-item">
@@ -45,7 +67,7 @@
                   <a class="navbar-link is-primary">
                     [[=globals().get('user').get('username')]]
                   </a>
-                  <div class="navbar-dropdown">
+                  <div class="navbar-dropdown is-right">
                     <a class="navbar-item" href="[[=URL('view_user_profile/' + str(globals().get('user').get('id')))]]">View Profile</a>
                     <a class="navbar-item" href="[[=URL('auth/profile')]]">Manage Account</a>
                     <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
@@ -66,7 +88,7 @@
     <!-- beginning of HTML inserted by extending template -->
     [[include]]
     <!-- end of HTML inserted by extending template -->
-    <div class="content has-text-centered footer">
+    <div class="footer has-text-centered">
       <p>
         Created by <a class="name" href="https://www.jackvento.com/">Jack Vento</a>, 
         <a class="name" href="https://github.com/Alex-Rah">Alex Rah</a>, 
@@ -87,7 +109,7 @@
       background-color: black;
       color: white;
       text-align: center;
-      height: -20px;
+      height: 10px;
       margin-top: 2px;
     }
     a.name:link{
