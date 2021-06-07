@@ -17,7 +17,7 @@ let init = (app) => {
         save_mode: false,
         playlist_saved: false,
         playlist_to_post: false,
-        pid: 0,
+        pid: "",
         add_playlist_name: "",
         desired_data: "Top Songs",
         top_tracks: [],
@@ -46,7 +46,6 @@ let init = (app) => {
         app.vue.counter = 1;
         app.vue.time_range = new_range;
         app.reset_form();
-        let time_range = app.vue.time_range;
         axios.get(load_stats_url, {params: {time_range: new_range}}).then(function (response) {
             app.vue.rows = response.data.rows;
             app.vue.top_tracks = response.data.top_tracks;
@@ -119,9 +118,13 @@ let init = (app) => {
 
 
     app.init = () => {
-        app.vue.counter =1;
-        app.vue.time_range = -1;
+        app.vue.counter = 1;
+        app.vue.time_range = 0;
         axios.get(load_stats_url, {params: {time_range: 0}}).then(function (response) {
+            app.vue.rows = response.data.rows;
+            app.vue.top_tracks = response.data.top_tracks;
+            app.vue.stats_loaded = true;
+            app.vue.stats_loading = false;
             app.vue.dashboard_loading = false;
         });
     };
