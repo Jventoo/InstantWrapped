@@ -145,6 +145,9 @@
                                 <p class="subtitle mb-3">{{i.song_name}}</p>
                             </div>
                         </div>
+                        <div v-else>
+                            <p class="subtitle">Visit dashboard to generate stats.</p>
+                        </div>
                     </div>
                     <div class="tile is-child">
                         <p class="title">Top 5 Artists</p>
@@ -153,6 +156,9 @@
                                 <p class="subtitle mb-3">{{i.artist_name}}</p>
                             </div>
                         </div>
+                        <div v-else>
+                            <p class="subtitle">Visit dashboard to generate stats.</p>
+                        </div>
                     </div>
                     <div class="tile is-child">
                         <p class="title">Top 5 Genres</p>
@@ -160,6 +166,9 @@
                             <div v-for="i in top_genres">
                                 <p class="subtitle mb-3">{{i.genre_name}}</p>
                             </div>
+                        </div>
+                        <div v-else>
+                            <p class="subtitle">Visit dashboard to generate stats.</p>
                         </div>
                     </div>
                 </div>

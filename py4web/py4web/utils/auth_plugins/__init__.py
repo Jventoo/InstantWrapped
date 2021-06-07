@@ -27,7 +27,6 @@ class SSO(object):
 
     def handle_request(self, auth, path, get_vars, post_vars):
         if path == "login":
-            print("REDIRECTING GET LOGIN URL:")
             print(self.get_login_url())
             redirect(self.get_login_url())
         elif path == "callback":
@@ -76,7 +75,6 @@ class SSO(object):
                 data["id"] = data.get("username") or data.get("email")
         user_id = data.get("id")
         auth.store_user_in_session(user_id)
-        print("REDIRECTING dashboard")
         redirect(URL("dashboard"))
 
     @staticmethod
