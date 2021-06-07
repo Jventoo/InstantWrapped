@@ -10,7 +10,6 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         profile_loading: true,
-        stats_loading: false,
 
         following: false,
         num_followers: 0,
@@ -150,20 +149,6 @@ let init = (app) => {
                 app.vue.current_user_name = response.data.current_user_name;
                 app.vue.comments = app.enumerate(comments);
             });
-
-            if (app.vue.top_songs.length == 0 || app.vue.top_artists.length == 0 ||  app.vue.top_genres.length == 0 )
-            {
-                app.vue.stats_loading = true;
-                axios.get(load_stats_url, {params: {time_range: 2}}).then(function (response) {
-                    app.vue.rows = response.data.rows;
-                    axios.get(load_profile_url).then(function (new_response) {
-                        app.vue.top_songs = new_response.data.top_songs;
-                        app.vue.top_artists = new_response.data.top_artists;
-                        app.vue.top_genres = new_response.data.top_genres;
-                        app.vue.stats_loading = false;
-                    });
-                });
-            }
         });
     };
 

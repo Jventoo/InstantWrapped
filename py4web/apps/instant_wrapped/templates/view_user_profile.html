@@ -145,9 +145,6 @@
                                 <p class="subtitle">{{i.song_name}}</p>
                             </div>
                         </div>
-                        <div v-else-if="stats_loading" class="section">
-                            <progress class="progress is-medium is-success" max="100"></progress>
-                        </div>
                     </div>
                     <div class="tile is-child">
                         <p class="title">Top 5 Artists</p>
@@ -156,9 +153,6 @@
                                 <p class="subtitle">{{i.artist_name}}</p>
                             </div>
                         </div>
-                        <div v-else-if="stats_loading" class="section">
-                            <progress class="progress is-medium is-success" max="100"></progress>
-                        </div>
                     </div>
                     <div class="tile is-child">
                         <p class="title">Top 5 Genres</p>
@@ -166,9 +160,6 @@
                             <div v-for="i in top_genres">
                                 <p class="subtitle">{{i.genre_name}}</p>
                             </div>
-                        </div>
-                        <div v-else-if="stats_loading" class="section">
-                            <progress class="progress is-medium is-success" max="100"></progress>
                         </div>
                     </div>
                 </div>
