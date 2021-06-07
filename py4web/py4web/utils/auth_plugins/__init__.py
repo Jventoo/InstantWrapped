@@ -27,7 +27,6 @@ class SSO(object):
 
     def handle_request(self, auth, path, get_vars, post_vars):
         if path == "login":
-            print(self.get_login_url())
             redirect(self.get_login_url())
         elif path == "callback":
             self._handle_callback(auth, get_vars)

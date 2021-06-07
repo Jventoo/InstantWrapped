@@ -556,6 +556,7 @@ def add_comment(playlist_id):
         comment_txt = request.json.get('comment_txt'),
     )
     author_url = URL('view_user_profile', r.id)
+    name = r.username
     return dict(id=id, author=name, current_user_name = name, author_url=author_url)
 
 @action('load_comments/<playlist_id:int>')
