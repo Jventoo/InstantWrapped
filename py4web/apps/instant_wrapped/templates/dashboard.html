@@ -6,150 +6,154 @@
     }
 </style>
 <div class="section" id="vue-target" v-cloak>
-    <h1 class="title">Select Your Preferred Musical Time Capsule Below &nbsp; <span class="icon-text"><span class="icon"> <i class="fa fa-music"></i> </span> </span> </h1>
-    <div class="columns is-mobile">
-        <div class="column is-four-fifths">
+    <div v-if="!dashboard_loading">
+        <h1 class="title">Select Your Preferred Musical Time Capsule Below &nbsp; <span class="icon-text"><span class="icon"> <i class="fa fa-music"></i> </span> </span> </h1>
+        <div class="columns is-mobile">
+            <div class="column is-four-fifths">
+                <div class="columns is-mobile">
+                    <div class="column is-one-third">
+                        <button type="submit" @click="load_stats(0)"
+                                class="button is-success is-rounded is-outlined is-medium">
+                                <span class="icon">
+                                    <i class="fa fa-thermometer-half"></i>
+                                </span>
+                            <span>Short Term Stats</span>
+                        </button>
+                    </div>
+
+                    <div class="column is-one-third">
+                        <button type="submit" @click="load_stats(1)"
+                                class="button is-success is-rounded is-outlined is-medium">
+                                <span class="icon">
+                                    <i class="fa fa-thermometer-three-quarters"></i>
+                                </span>
+                            <span>Medium Term Stats</span>
+                        </button>
+                    </div>
+
+                    <div class="column is-one-third">
+                        <button type="submit" @click="load_stats(2)"
+                                class="button is-success is-rounded is-outlined is-medium">
+                                <span class="icon">
+                                    <i class="fa fa-thermometer-full"></i>
+                                </span>
+                            <span>Long Term Stats</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="column is-one-fifth">
+                <a class="button is-rounded is-dark is-outlined is-medium" href="[[=URL('leaderboard')]]">
+                    <span class="icon">
+                        <i class="fa fa-bar-chart"></i>
+                    </span>
+                    <span>Leaderboard</span>
+                </a>
+            </div>
+        </div>
+
+        <div v-if="stats_loaded && desired_data === 'Top Songs'" class="mx-6 mt-5">
             <div class="columns is-mobile">
-                <div class="column is-one-third">
-                    <button type="submit" @click="load_stats(0)"
-                            class="button is-success is-rounded is-outlined is-medium">
+                <div class="column is-four-fifths">
+                    <h1 class="title">Your Top Songs</h1>
+                    <p class="subtitle" v-if="time_range == 0">Last 30 Days</p>
+                    <p class="subtitle" v-else-if="time_range == 1">Last 6 Months</p>
+                    <p class="subtitle" v-else>All Time</p>
+                </div>
+                <div class="column">
+                    <button type="submit" @click="desired_data = 'Top Artists'"
+                            class="button is-dark is-rounded is-outlined">
                             <span class="icon">
-                                <i class="fa fa-thermometer-half"></i>
+                                <i class="fa fa-step-forward"></i>
                             </span>
-                        <span>Short Term Stats</span>
+                        <span>Artists</span>
                     </button>
                 </div>
-
-                <div class="column is-one-third">
-                    <button type="submit" @click="load_stats(1)"
-                            class="button is-success is-rounded is-outlined is-medium">
-                            <span class="icon">
-                                <i class="fa fa-thermometer-three-quarters"></i>
-                            </span>
-                        <span>Medium Term Stats</span>
-                    </button>
-                </div>
-
-                <div class="column is-one-third">
-                    <button type="submit" @click="load_stats(2)"
-                            class="button is-success is-rounded is-outlined is-medium">
-                            <span class="icon">
-                                <i class="fa fa-thermometer-full"></i>
-                            </span>
-                        <span>Long Term Stats</span>
-                    </button>
-                </div>
-
             </div>
-        </div>
-        <div class="column is-one-fifth">
-            <a class="button is-rounded is-dark is-outlined is-medium" href="[[=URL('leaderboard')]]">
-                <span class="icon">
-                    <i class="fa fa-bar-chart"></i>
-                </span>
-                <span>Leaderboard</span>
-            </a>
-        </div>
-    </div>
-
-    <div v-if="stats_loaded && desired_data === 'Top Songs'" class="mx-6 mt-5">
-        <div class="columns is-mobile">
-            <div class="column is-four-fifths">
-                <h1 class="title">Your Top Songs</h1>
-                <p class="subtitle" v-if="time_range == 0">Last 30 Days</p>
-                <p class="subtitle" v-else-if="time_range == 1">Last 6 Months</p>
-                <p class="subtitle" v-else>All Time</p>
-            </div>
-            <div class="column">
-                <button type="submit" @click="desired_data = 'Top Artists'"
-                        class="button is-dark is-rounded is-outlined">
-                        <span class="icon">
-                            <i class="fa fa-step-forward"></i>
-                        </span>
-                    <span>Artists</span>
+            <table class="table is-striped is-fullwidth">
+                <tr>
+                    <th>Rank</th>
+                    <th>Song</th>
+                    <th>Artist(s)</th>
+                </tr>
+                <tr v-for="i in rows['track_rankings']">
+                    <td>{{i+1}}</td>
+                    <td>{{rows["top_tracks"][i][0]}}</td>
+                    <td>{{rows["top_tracks"][i][1]}}</td>
+                </tr>
+            </table>
+            <div v-if="!playlist_saved && save_mode === false">
+                <button type="submit" @click="set_save_status(true)"
+                        class="button is-success is-rounded is-medium is-outlined">
+                    Save Playlist to Library
                 </button>
             </div>
-        </div>
-        <table class="table is-striped is-fullwidth">
-            <tr>
-                <th>Rank</th>
-                <th>Song</th>
-                <th>Artist(s)</th>
-            </tr>
-            <tr v-for="i in rows['track_rankings']">
-                <td>{{i+1}}</td>
-                <td>{{rows["top_tracks"][i][0]}}</td>
-                <td>{{rows["top_tracks"][i][1]}}</td>
-            </tr>
-        </table>
-        <div v-if="!playlist_saved && save_mode === false">
-            <button type="submit" @click="set_save_status(true)"
-                    class="button is-success is-rounded is-medium is-outlined">
-                Save Playlist to Library
-            </button>
-        </div>
-        <div v-else-if="!playlist_saved && save_mode === true">
-            <div v-if="save_mode" class="container block">
-                <div class="title">Please give your playlist a name</div>
-                <div class="form">
-                    <!-- This looks like a form, but is not.  We just need the inputs. -->
-                    <div class="field">
-                        <label class="label">Playlist Name:</label>
-                        <div class="control">
-                            <input type="text" v-model="add_playlist_name" class="input">
+            <div v-else-if="!playlist_saved && save_mode === true">
+                <div v-if="save_mode" class="container block">
+                    <div class="title">Please give your playlist a name</div>
+                    <div class="form">
+                        <!-- This looks like a form, but is not.  We just need the inputs. -->
+                        <div class="field">
+                            <label class="label">Playlist Name:</label>
+                            <div class="control">
+                                <input type="text" v-model="add_playlist_name" class="input">
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <input type="submit" @click="create_playlist(top_tracks)" value="Save Playlist"
-                                    class="button is-dark is-rounded">
-                            <input type="submit" @click="set_save_status(false)" value="Cancel"
-                                    class="button is-light is-rounded">
+                        <div class="field">
+                            <div class="control">
+                                <input type="submit" @click="create_playlist(top_tracks)" value="Save Playlist"
+                                        class="button is-dark is-rounded">
+                                <input type="submit" @click="set_save_status(false)" value="Cancel"
+                                        class="button is-light is-rounded">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div v-if="playlist_to_post" style="margin-top: 10px">
-            <button type="submit" @click="post_playlist(pid)"
-                    class="button is-success is-rounded is-medium is-outlined">
-                Post Playlist to Leaderboard
-            </button>
-        </div>
-    </div>
-    <div v-else-if="stats_loaded && desired_data === 'Top Artists'" class="mx-6 mt-5">
-        <div class="columns is-mobile">
-            <div class="column is-four-fifths">
-                <h1 class="title">Your Top Artists</h1>
-                <p class="subtitle" v-if="time_range == 0">Last 30 Days</p>
-                <p class="subtitle" v-else-if="time_range == 1">Last 6 Months</p>
-                <p class="subtitle" v-else>All Time</p>
-            </div>
-            <div class="column">
-                <button type="submit" @click="desired_data = 'Top Songs'"
-                        class="button is-dark is-rounded is-outlined">
-                        <span class="icon">
-                            <i class="fa fa-step-forward"></i>
-                        </span>
-                    <span>Songs</span>
+            <div v-if="playlist_to_post" style="margin-top: 10px">
+                <button type="submit" @click="post_playlist(pid)"
+                        class="button is-success is-rounded is-medium is-outlined">
+                    Post Playlist to Leaderboard
                 </button>
             </div>
         </div>
-        <table class="table is-striped is-fullwidth">
-            <tr>
-                <th>Rank</th>
-                <th>Artist</th>
-            </tr>
-            <tr v-for="i in rows['artist_rankings']">
-                <td>{{i+1}}</td>
-                <td>{{rows["top_artists"][i]}}</td>
-            </tr>
-        </table>
+        <div v-else-if="stats_loaded && desired_data === 'Top Artists'" class="mx-6 mt-5">
+            <div class="columns is-mobile">
+                <div class="column is-four-fifths">
+                    <h1 class="title">Your Top Artists</h1>
+                    <p class="subtitle" v-if="time_range == 0">Last 30 Days</p>
+                    <p class="subtitle" v-else-if="time_range == 1">Last 6 Months</p>
+                    <p class="subtitle" v-else>All Time</p>
+                </div>
+                <div class="column">
+                    <button type="submit" @click="desired_data = 'Top Songs'"
+                            class="button is-dark is-rounded is-outlined">
+                            <span class="icon">
+                                <i class="fa fa-step-forward"></i>
+                            </span>
+                        <span>Songs</span>
+                    </button>
+                </div>
+            </div>
+            <table class="table is-striped is-fullwidth">
+                <tr>
+                    <th>Rank</th>
+                    <th>Artist</th>
+                </tr>
+                <tr v-for="i in rows['artist_rankings']">
+                    <td>{{i+1}}</td>
+                    <td>{{rows["top_artists"][i]}}</td>
+                </tr>
+            </table>
+        </div>
+        <div v-else-if="stats_loading" class="section">
+            <progress class="progress is-medium is-success" max="100"></progress>
+        </div>
     </div>
-    <div v-else-if="stats_loading" class="section">
+    <div v-else class="section">
         <progress class="progress is-medium is-success" max="100"></progress>
     </div>
-
 </div>
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
