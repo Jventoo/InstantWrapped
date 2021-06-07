@@ -555,8 +555,8 @@ def add_comment(playlist_id):
         comment_author = models.get_user(),
         comment_txt = request.json.get('comment_txt'),
     )
-    name = r.username
-    return dict(id=id, author=name, current_user_name = name)
+    author_url = URL('view_user_profile', r.id)
+    return dict(id=id, author=name, current_user_name = name, author_url=author_url)
 
 @action('load_comments/<playlist_id:int>')
 @action.uses(db, auth.user)
@@ -622,7 +622,8 @@ def add_comment(uid):
         comment_txt = request.json.get('comment_txt'),
     )
     name = r.username
-    return dict(id=id, author=name, current_user_name = name)
+    author_url = URL('view_user_profile', r.id)
+    return dict(id=id, author=name, current_user_name = name, author_url=author_url)
 
 @action('load_profile_comments/<uid:int>')
 @action.uses(db, auth.user)

@@ -88,6 +88,7 @@ let init = (app) => {
                     comment_author: app.vue.current_user,
                     comment_txt: app.vue.add_comment_txt,
                     author_name: response.data.author,
+                    author_url: response.data.author_url,
                 });
                 app.enumerate(app.vue.comments);
                 app.reset_form();
