@@ -681,7 +681,7 @@ def load_followers(user_id):
 @action('start_following', method="POST")
 @action.uses(db, auth.user, url_signer.verify())
 def start_following():
-    user_id = request.params.get('user_id')
+    user_id = request.json.get('user_id')
     assert user_id is not None
     db.followers.update_or_insert(follower=models.get_user(),followee=user_id)
     return dict()
@@ -689,7 +689,7 @@ def start_following():
 @action('stop_following', method="POST")
 @action.uses(db, auth.user, url_signer.verify())
 def stop_following():
-    user_id = request.params.get('user_id')
+    user_id = request.json.get('user_id')
     assert user_id is not None
     db(
         (db.followers.follower == models.get_user()) & (db.followers.followee == user_id)
