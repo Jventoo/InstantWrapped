@@ -15,7 +15,8 @@ let init = (app) => {
         following: false,
         num_followers: 0,
         num_following: 0,
-    
+        followers_url: "",
+
         current_user: -1,
         current_user_name: "",
 
@@ -132,6 +133,7 @@ let init = (app) => {
             app.vue.following = response.data.following;
             app.vue.num_followers = response.data.num_followers;
             app.vue.num_following = response.data.num_following;
+            app.vue.followers_url = response.data.followers_url;
 
             app.vue.profile_loading = false;
 

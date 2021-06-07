@@ -358,6 +358,8 @@ def get_profile(user_id):
             playlist = sp.playlist(pl["spotify_playlist_id"])
             pName = playlist["name"]
             pl["playlist_name"] = pName
+            playlist_id = db(db.user_playlist.spotify_playlist_id == pl["spotify_playlist_id"]).select().first()
+            pl["playlist_url"] = URL('view_playlist', playlist_id["id"], signer=url_signer)
         except:
             continue
 
@@ -369,8 +371,9 @@ def get_profile(user_id):
     followers_count = len(db(db.followers.followee == uid).select().as_list())
     following_count = len(db(db.followers.follower == uid).select().as_list())
 
+    followers_url = URL ('view_followers', uid, signer = url_signer)
     return dict(
-        user_id=uid, current_user=models.get_user(), user_name=name,
+        user_id=uid, current_user=models.get_user(), followers_url = followers_url, user_name=name,
         user_picture=picture, biography=bio, top_songs=songs,
         top_artists=artists, top_genres=genres, playlists=pls,
         following=is_following,num_followers=followers_count,
@@ -405,6 +408,9 @@ def load_leaderboard():
         playlist = sp.playlist(row["spotify_playlist_id"])
         pName = playlist["name"]
         row["playlist_name"] = pName
+        playlist_id = db(db.user_playlist.spotify_playlist_id == row["spotify_playlist_id"] ).select().first()
+        row["playlist_url"] = URL('view_playlist', playlist_id["id"], signer=url_signer)
+        row["author_url"] = URL('view_user_profile', r.id, signer=url_signer)
     rows2 = sorted(rows, key=lambda i: i['rate_score'],reverse=True)
     return dict(rows = rows2, current_user=models.get_user())
 
@@ -496,6 +502,7 @@ def load_playlist(playlist_id):
     current_user = models.get_user()
     temp = db(db.user_playlist.id == playlist_id).select().first()
     playlist_owner = temp["user_id"]
+    playlist_author_url = URL('view_user_profile', playlist_owner, signer = url_signer)
     playlist_owner_name = db(db.auth_user.id == playlist_owner).select().first().username
     currently_displayed = ast.literal_eval((temp["leaderboard_display"]))
     pid = temp["spotify_playlist_id"]
@@ -518,7 +525,7 @@ def load_playlist(playlist_id):
         name = name[:-2:]
         rows["authors"].append(name)
     return dict(
-        rows = rows, current_user = current_user, playlist_picture = pl_pic, playlist_link = pl_link,
+        rows = rows, playlist_author_url = playlist_author_url, current_user = current_user, playlist_picture = pl_pic, playlist_link = pl_link,
         playlist_owner = playlist_owner, playlist_owner_name = playlist_owner_name, 
         currently_displayed = currently_displayed, pid = pid, playlist_name=playlist_name
         )
@@ -557,6 +564,7 @@ def load_comments(playlist_id):
     for comment in comments:
         r = db(db.auth_user.id == comment["comment_author"]).select().first()
         comment["author_name"] = r.username
+        comment["author_url"] = URL('view_user_profile', r.id, signer = url_signer)
     return dict(comments=comments, current_user_name = current_user_name)
 
 @action('delete_comment')
@@ -589,6 +597,7 @@ def load_replies():
     for reply in replies:
         r = db(db.auth_user.id == reply["reply_author"]).select().first()
         reply["author_name"] = r.username
+        reply["author_url"] = URL('view_user_profile', r.id, signer=url_signer)
     return dict(replies=replies, current_user_name = current_user_name)
 
 @action('delete_reply')
@@ -646,18 +655,21 @@ def load_followers(user_id):
     follower_names = []
     for entry in follower_rows:
         temp_follower = db(db.auth_user.id == entry['follower']).select().first()
-        follower_names.append((temp_follower.id, temp_follower.username, temp_follower.profile_picture))
+        follower_url = URL('view_user_profile', temp_follower.id, signer = url_signer)
+        follower_names.append((temp_follower.id, temp_follower.username, temp_follower.profile_picture, follower_url))
 
     following_rows = db(db.followers.follower == user_id).select().as_list()
     following_names = []
     for entry in following_rows:
         temp_following = db(db.auth_user.id == entry['followee']).select().first()
-        following_names.append((temp_following.id, temp_following.username, temp_follower.profile_picture))
+        following_url = URL('view_user_profile', temp_following.id, signer=url_signer)
+        following_names.append((temp_following.id, temp_following.username, temp_following.profile_picture, following_url))
 
+    profile_url = URL('view_user_profile', user_id, signer= url_signer)
     temp = db(db.auth_user.id == models.get_user()).select().first()
     current_user_name = temp.username
     return dict(followers=follower_names, following=following_names,
-        user_id=user_id, username=current_user_name)
+        user_id=user_id, username=current_user_name, profile_url = profile_url)
 
 @action('start_following', method="POST")
 @action.uses(db, auth.user, url_signer.verify())

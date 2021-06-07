@@ -7,7 +7,7 @@
 </style>
 
 <div class="section mx-6" id="vue-target" v-cloak>
-    <a class="button is-dark is-rounded is-outlined" :href="'/instant_wrapped/' + 'view_user_profile/' + user_id">
+    <a class="button is-dark is-rounded is-outlined" :href="profile_url">
         <span class="icon">
             <i class="fa fa-flip-horizontal fa-step-forward"></i>
         </span>
@@ -22,7 +22,7 @@
                     <figure class="image is-48x48">
                         <img v-bind:src="follower[2]" class="is-rounded">
                     </figure>
-                    <a class="ml-2" :href="'/instant_wrapped/' + 'view_user_profile/' + follower[0]">{{follower[1]}}</a>
+                    <a class="ml-2" :href="follower[3]">{{follower[1]}}</a>
                 </div>
             </nav>
         </div>
@@ -33,7 +33,7 @@
                     <figure class="image is-48x48">
                         <img v-bind:src="followee[2]" class="is-rounded">
                     </figure>
-                    <a class="ml-2" :href="'/instant_wrapped/' + 'view_user_profile/' + followee[0]">{{followee[1]}}</a>
+                    <a class="ml-2" :href="followee[3]">{{followee[1]}}</a>
                 </div>
             </nav>
         </div>

@@ -11,6 +11,7 @@ let init = (app) => {
     app.data = {
         followers: [],
         following: [],
+        profile_url: "",
         user_id: -1,
         username: "",
     };
@@ -37,6 +38,7 @@ let init = (app) => {
         axios.get(load_followers_url, {params: {user_id: app.vue.user_id}}).then(function (response) {
             app.vue.followers = response.data.followers;
             app.vue.following = response.data.following;
+            app.vue.profile_url = response.data.profile_url;
             app.vue.user_id = response.data.user_id;
             app.vue.username = response.data.username;
         });     

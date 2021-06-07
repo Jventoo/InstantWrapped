@@ -34,13 +34,13 @@
             <div class="level-right">
                 <div class="level-item">
                     <div>
-                        <a class="heading" :href="'/instant_wrapped/' + 'view_followers/' + user_id">Followers</a>
+                        <a class="heading" :href="followers_url">Followers</a>
                         <p class="title has-text-centered pb-5">{{num_followers}}</p>
                     </div>
                 </div>
                 <div class="level-item">
                     <div>
-                        <a class="heading" :href="'/instant_wrapped/' + 'view_followers/' + user_id">Following</a>
+                        <a class="heading" :href="followers_url">Following</a>
                         <p class="title has-text-centered pb-5">{{num_following}}</p>
                     </div>
                 </div>
@@ -82,7 +82,7 @@
                             <p class="title">Playlists</p>
                             <div v-if="top_playlists.length">
                                 <div v-for="i in top_playlists">
-                                    <p class="subtitle"><a :href="'/instant_wrapped/' + 'view_playlist/' + i.id"
+                                    <p class="subtitle"><a :href="i.playlist_url"
                                                         class="button is-rounded is-ghost">{{i.playlist_name}}</a></p>
                                     
                                 </div>
@@ -118,7 +118,7 @@
                             <div class="container block is-max-desktop">
                                 <article class="message is-success" v-for="c in comments.slice().reverse()">
                                     <div class="message-header">
-                                        <a :href="'/instant_wrapped/' + 'view_user_profile/' + c.comment_author"> {{c.author_name}} </a>
+                                        <a :href="c.author_url"> {{c.author_name}} </a>
                                         <div v-if="current_user == c.comment_author">
                                             <button @click="delete_comment(c._idx)" class="button is-danger is-inverted">
                                                 <i class="fa fa-trash"></i>

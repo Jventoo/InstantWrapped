@@ -14,6 +14,7 @@ let init = (app) => {
         currently_displayed: false,
         playlist_loading: true,
 
+        playlist_author_url: "",
         playlist_owner: -20,
         playlist_picture: "",
         playlist_link: "",
@@ -177,6 +178,7 @@ let init = (app) => {
             app.vue.currently_displayed = response.data.currently_displayed;
             app.vue.pid = response.data.pid;
             app.vue.playlist_name = response.data.playlist_name;
+            app.vue.playlist_author_url = response.data.playlist_author_url;
             axios.get(load_comments_url).then(function(response){
                 let comments = response.data.comments;
                 app.vue.current_user_name = response.data.current_user_name;

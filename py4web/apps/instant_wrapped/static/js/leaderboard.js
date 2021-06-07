@@ -11,9 +11,7 @@ let init = (app) => {
     app.data = {
         rows: [],
         leaderboard_loading: true,
-
         current_user: -1,
-        
         matching_users: [],
     };
 
