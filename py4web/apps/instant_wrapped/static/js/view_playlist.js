@@ -11,7 +11,7 @@ let init = (app) => {
     app.data = {
         rows: [],
         pid: 0,
-        currently_displayed: false,
+        currently_displayed: 0,
         playlist_loading: true,
 
         playlist_author_url: "",
@@ -31,7 +31,6 @@ let init = (app) => {
 
     app.change_post_status = function (post_status){
         app.vue.currently_displayed = post_status;
-        console.log(post_status);
         axios.post(post_playlist_url,
             {
                 pid: app.vue.pid,

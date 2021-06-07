@@ -73,6 +73,8 @@ class AuthEnforcer(Fixture):
         if request.query_string:
             redirect_next = redirect_next + "?{}".format(request.query_string)
         self.auth.flash.set(message)
+        print("REDIRECTING CALLBACK:")
+        print(URL("auth/plugin/oauth2spotify/login"))
         redirect(URL("auth/plugin/oauth2spotify/login")
             # URL(
             #     self.auth.route,
@@ -1016,6 +1018,7 @@ class DefaultAuthForms:
             self._set_flash("user-registered")
             self._postprocessing("register", form, user)
             if self.auth.param.login_after_registration:
+                print("REDIRECTING LOGIN")
                 redirect("login")
         form.param.sidecar.append(
             A(
@@ -1254,6 +1257,10 @@ class DefaultAuthForms:
 
     def _postprocessing(self, action, form=None, user=None):
         if not form:
+            print("REDIRECTING NEXT OR INDEX:")
+            print(self.auth.next.get(action) or URL("index"))
             redirect(self.auth.next.get(action) or URL("index"))
         elif form.accepted:
+            print("REDIRECTING USER PROF")
+            print(URL("view_user_profile", user.id))
             redirect(URL("view_user_profile", user.id))
