@@ -11,6 +11,8 @@ let init = (app) => {
     app.data = {
         stats_loaded: false,
         stats_loading: false,
+        dashboard_loading: true,
+
         time_range: -1,
         save_mode: false,
         playlist_saved: false,
@@ -119,6 +121,9 @@ let init = (app) => {
     app.init = () => {
         app.vue.counter =1;
         app.vue.time_range = -1;
+        axios.get(load_stats_url, {params: {time_range: 0}}).then(function (response) {
+            app.vue.dashboard_loading = false;
+        });
     };
 
     app.init();

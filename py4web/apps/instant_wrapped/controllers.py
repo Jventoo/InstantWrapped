@@ -317,7 +317,7 @@ def get_profile(user_id):
     bio = db.auth_user[uid]['biography']
 
     songs = db(
-        (db.user_top_song.user_id == uid) & (db.user_top_song.user_timespan == spotify_ranges[2])
+        (db.user_top_song.user_id == uid) & (db.user_top_song.user_timespan == spotify_ranges[0])
     ).select(orderby=db.user_top_song.user_position).as_list()
     songs = songs[0:num_songs]
     for song in songs:
@@ -329,7 +329,7 @@ def get_profile(user_id):
 
 
     artists = db(
-        (db.user_top_artist.user_id == uid) & (db.user_top_artist.user_timespan == spotify_ranges[2])
+        (db.user_top_artist.user_id == uid) & (db.user_top_artist.user_timespan == spotify_ranges[0])
     ).select(orderby=db.user_top_artist.user_position).as_list()
     artists = artists[0:num_artists]
     for artist in artists:
@@ -341,7 +341,7 @@ def get_profile(user_id):
 
 
     genres = db(
-        (db.user_top_genre.user_id == uid) & (db.user_top_genre.user_timespan == spotify_ranges[2])
+        (db.user_top_genre.user_id == uid) & (db.user_top_genre.user_timespan == spotify_ranges[0])
     ).select(orderby=db.user_top_genre.user_position).as_list()
     genres = genres[0:num_genres]
     for genre in genres:
@@ -390,7 +390,6 @@ def get_matches():
 def dashboard(user_id):
     return dict(
         load_profile_url=URL('load_profile', user_id),
-        load_stats_url=URL('load_stats', signer=url_signer),
         add_comment_url=URL('add_profile_comment', user_id, signer=url_signer),
         load_comments_url=URL('load_profile_comments', user_id),
         delete_comment_url = URL('delete_profile_comment', signer=url_signer),
