@@ -57,7 +57,13 @@ class SSO(object):
                 value, parts = data, value.split(".")
                 for part in parts:
                     try:
-                        value = value[int(part) if part.isdigit() else part]
+                        if part.isdigit():
+                            if (int(part) < len(value)):
+                                value = value[int(part)]
+                            else:
+                                continue
+                        else:
+                            value = value[part]
                         if key == 'email' and not value:
                             continue
                         user[key] = value
