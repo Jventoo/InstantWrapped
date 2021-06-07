@@ -82,7 +82,7 @@ let init = (app) => {
         axios.post(post_playlist_url,
             {
                 pid: playlist_id,
-                post_status: true,
+                post_status: 1,
             });
             app.set_save_status(false);
             app.vue.playlist_to_post = false;

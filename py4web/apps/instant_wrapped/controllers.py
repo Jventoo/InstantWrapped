@@ -397,7 +397,7 @@ def dashboard(user_id):
 @action.uses(db, auth.user)
 def load_leaderboard():
     sp = get_sp()
-    rows = db(db.user_playlist.leaderboard_display == True).select().as_list()
+    rows = db(db.user_playlist.leaderboard_display == 1).select().as_list()
     for row in rows:
         r = db(db.auth_user.id == row["user_id"]).select().first()
         row["playlist_author"] = r.username
@@ -497,7 +497,7 @@ def load_playlist(playlist_id):
     temp = db(db.user_playlist.id == playlist_id).select().first()
     playlist_owner = temp["user_id"]
     playlist_owner_name = db(db.auth_user.id == playlist_owner).select().first().username
-    currently_displayed = ast.literal_eval((temp["leaderboard_display"]))
+    currently_displayed = temp["leaderboard_display"]
     pid = temp["spotify_playlist_id"]
     rows = {
         "tracks": [],
@@ -543,6 +543,7 @@ def add_comment(playlist_id):
     r = db(db.auth_user.id == models.get_user()).select().first()
     id = db.comments.insert(
         playlist_id = playlist_id, 
+        comment_author = models.get_user(),
         comment_txt = request.json.get('comment_txt'),
     )
     name = r.username
@@ -572,7 +573,8 @@ def delete_post():
 def add_reply():
     r = db(db.auth_user.id == models.get_user()).select().first()
     id = db.replies.insert(
-        comment_id = request.json.get('comment_id'), 
+        comment_id = request.json.get('comment_id'),
+        reply_author = models.get_user(),
         reply_txt=request.json.get('reply_txt'), 
     )
     name = r.username
@@ -604,6 +606,7 @@ def delete_post():
 def add_comment(uid):
     r = db(db.auth_user.id == models.get_user()).select().first()
     id = db.profile_comments.insert(
+        comment_author = models.get_user(),
         profile_id = uid, 
         comment_txt = request.json.get('comment_txt'),
     )

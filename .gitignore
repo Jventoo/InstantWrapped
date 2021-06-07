@@ -130,3 +130,5 @@ dmypy.json
 
 # VS Code files
 .vscode
+py4web/apps/instant_wrapped/private/*
+

@@ -99,6 +99,8 @@ def store_playlist(pid, uid):
     db.user_playlist.insert(
         user_id=uid,
         spotify_playlist_id=pid,
+        rate_score=0,
+        leaderboard_display=0,
     )
     return
 
@@ -167,7 +169,7 @@ db.define_table(
     Field('user_id', 'reference auth_user'),
     Field('spotify_playlist_id', requires=IS_NOT_EMPTY()),
     Field('rate_score', 'integer', default=0),
-    Field('leaderboard_display', default=False),
+    Field('leaderboard_display', 'integer', default=0),
 )
 
 db.define_table(
