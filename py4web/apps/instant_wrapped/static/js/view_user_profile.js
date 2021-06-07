@@ -37,12 +37,12 @@ let init = (app) => {
 
     app.set_following = function(new_status) {
         if (new_status) {
-            axios.post(start_follow_url).then(function (response) {
+            axios.post(start_follow_url, {params: {id: app.vue.user_id}}).then(function (response) {
                 app.vue.num_followers++;
                 app.vue.following = true;
             });
         } else {
-            axios.post(stop_follow_url).then(function (response) {
+            axios.post(stop_follow_url, {params: {id: app.vue.user_id}}).then(function (response) {
                 app.vue.num_followers--;
                 app.vue.following = false;
             });
@@ -148,10 +148,10 @@ let init = (app) => {
                 app.vue.stats_loading = true;
                 axios.get(load_stats_url, {params: {time_range: 2}}).then(function (response) {
                     app.vue.rows = response.data.rows;
-                    axios.get(load_profile_url).then(function (response) {
-                        app.vue.top_songs = response.data.top_songs;
-                        app.vue.top_artists = response.data.top_artists;
-                        app.vue.top_genres = response.data.top_genres;
+                    axios.get(load_profile_url).then(function (new_response) {
+                        app.vue.top_songs = new_response.data.top_songs;
+                        app.vue.top_artists = new_response.data.top_artists;
+                        app.vue.top_genres = new_response.data.top_genres;
                         app.vue.stats_loading = false;
                     });
                 });
