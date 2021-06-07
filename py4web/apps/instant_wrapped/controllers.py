@@ -447,7 +447,8 @@ def load_matches():
         id = top_user_ids[i]
         username = db.auth_user[top_user_ids[i]].username
         picture = db.auth_user[top_user_ids[i]].profile_picture
-        top_users.append((id, username, picture))
+        profile_url = URL('view_user_profile', id, signer=url_signer)
+        top_users.append((id, username, picture, profile_url))
 
     return dict(top_users=top_users)
 
