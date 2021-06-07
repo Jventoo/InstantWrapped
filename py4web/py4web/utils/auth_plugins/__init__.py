@@ -56,10 +56,14 @@ class SSO(object):
             for key, value in self.maps.items():
                 value, parts = data, value.split(".")
                 for part in parts:
-                    value = value[int(part) if part.isdigit() else part]
-                    if key == 'email' and not value:
+                    try:
+                        value = value[int(part) if part.isdigit() else part]
+                        if key == 'email' and not value:
+                            continue
+                        user[key] = value
+                    except:
                         continue
-                    user[key] = value
+
             user["sso_id"] = "%s:%s" % (self.name, user["sso_id"])
             user["access_token"] = token
             user["refresh_token"] = refresh
