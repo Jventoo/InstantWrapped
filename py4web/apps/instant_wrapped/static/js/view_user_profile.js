@@ -37,12 +37,12 @@ let init = (app) => {
 
     app.set_following = function(new_status) {
         if (new_status) {
-            axios.post(start_follow_url, {params: {id: app.vue.user_id}}).then(function (response) {
+            axios.post(start_follow_url, {params: {user_id: app.vue.user_id}}).then(function (response) {
                 app.vue.num_followers++;
                 app.vue.following = true;
             });
         } else {
-            axios.post(stop_follow_url, {params: {id: app.vue.user_id}}).then(function (response) {
+            axios.post(stop_follow_url, {params: {user_id: app.vue.user_id}}).then(function (response) {
                 app.vue.num_followers--;
                 app.vue.following = false;
             });
