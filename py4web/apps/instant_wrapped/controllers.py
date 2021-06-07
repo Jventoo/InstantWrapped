@@ -317,7 +317,7 @@ def get_profile(user_id):
     bio = db.auth_user[uid]['biography']
 
     songs = db(
-        (db.user_top_song.user_id == uid) & (db.user_top_song.user_timespan == spotify_ranges[0])
+        (db.user_top_song.user_id == uid) & (db.user_top_song.user_timespan == spotify_ranges[2])
     ).select(orderby=db.user_top_song.user_position).as_list()
     songs = songs[0:num_songs]
     for song in songs:
@@ -329,7 +329,7 @@ def get_profile(user_id):
 
 
     artists = db(
-        (db.user_top_artist.user_id == uid) & (db.user_top_artist.user_timespan == spotify_ranges[0])
+        (db.user_top_artist.user_id == uid) & (db.user_top_artist.user_timespan == spotify_ranges[2])
     ).select(orderby=db.user_top_artist.user_position).as_list()
     artists = artists[0:num_artists]
     for artist in artists:
@@ -341,7 +341,7 @@ def get_profile(user_id):
 
 
     genres = db(
-        (db.user_top_genre.user_id == uid) & (db.user_top_genre.user_timespan == spotify_ranges[0])
+        (db.user_top_genre.user_id == uid) & (db.user_top_genre.user_timespan == spotify_ranges[2])
     ).select(orderby=db.user_top_genre.user_position).as_list()
     genres = genres[0:num_genres]
     for genre in genres:
@@ -390,6 +390,7 @@ def get_matches():
 def dashboard(user_id):
     return dict(
         load_profile_url=URL('load_profile', user_id),
+        load_stats_url=URL('load_stats', signer=url_signer),
         add_comment_url=URL('add_profile_comment', user_id, signer=url_signer),
         load_comments_url=URL('load_profile_comments', user_id),
         delete_comment_url = URL('delete_profile_comment', signer=url_signer),
@@ -556,7 +557,8 @@ def add_comment(playlist_id):
         comment_txt = request.json.get('comment_txt'),
     )
     name = r.username
-    return dict(id=id, author=name, current_user_name = name)
+    author_url = URL('view_user_profile', r.id)
+    return dict(id=id, author=name, current_user_name = name, author_url=author_url)
 
 @action('load_comments/<playlist_id:int>')
 @action.uses(db, auth.user)
@@ -622,7 +624,8 @@ def add_comment(uid):
         comment_txt = request.json.get('comment_txt'),
     )
     name = r.username
-    return dict(id=id, author=name, current_user_name = name)
+    author_url = URL('view_user_profile', r.id)
+    return dict(id=id, author=name, current_user_name = name, author_url=author_url)
 
 @action('load_profile_comments/<uid:int>')
 @action.uses(db, auth.user)
@@ -680,7 +683,7 @@ def load_followers(user_id):
 @action('start_following', method="POST")
 @action.uses(db, auth.user, url_signer.verify())
 def start_following():
-    user_id = request.json.get('user_id')
+    user_id = request.params.get('user_id')
     assert user_id is not None
     db.followers.update_or_insert(follower=models.get_user(),followee=user_id)
     return dict()
@@ -688,7 +691,7 @@ def start_following():
 @action('stop_following', method="POST")
 @action.uses(db, auth.user, url_signer.verify())
 def stop_following():
-    user_id = request.json.get('user_id')
+    user_id = request.params.get('user_id')
     assert user_id is not None
     db(
         (db.followers.follower == models.get_user()) & (db.followers.followee == user_id)

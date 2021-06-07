@@ -92,7 +92,7 @@ let init = (app) => {
                 replies : [],
                 reply_mode : false,
                 add_reply_txt : "",
-
+                comment_author_url: response.data.author_url
             });
             app.enumerate(app.vue.comments);
             app.reset_form(-1);
